@@ -1,0 +1,325 @@
+/* --- Global Wrapper & Smooth Background --- */
+.bus-list-page-wrapper {
+  display: flex;
+  padding: 40px 10%;
+  background: linear-gradient(135deg, #f7f9fc 0%, #eef2f7 100%);
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  gap: 30px;
+}
+
+/* ================= FILTER BOX (MODERNIZED) ================= */
+.filters-sidebar-modern {
+  width: 300px;
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.05);
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.filter-heading { 
+  color: #1a202c; 
+  margin-bottom: 25px; 
+  font-size: 1.6rem; 
+  font-weight: 800;
+  border-bottom: 2px solid #f1f5f9; 
+  padding-bottom: 15px; 
+}
+
+.filter-section { margin-bottom: 30px; }
+
+.section-label { 
+  font-weight: 700; 
+  margin-bottom: 15px; 
+  display: block; 
+  color: #1a202c; 
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Vertical Stack for Options */
+.options-stack-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Custom Checkbox Label */
+.custom-check-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #4a5568;
+  transition: all 0.2s ease;
+  padding: 4px 0;
+}
+
+.custom-check-label input[type="checkbox"],
+.custom-check-label input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #d84e55;
+  cursor: pointer;
+}
+
+.custom-check-label:hover {
+  color: #d84e55;
+  transform: translateX(5px);
+}
+
+.price-val {
+  color: #d84e55;
+  font-weight: 800;
+  float: right;
+}
+
+.slider { 
+  width: 100%; 
+  accent-color: #d84e55; 
+  cursor: pointer; 
+  height: 6px;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+.operator-select { 
+  width: 100%; 
+  padding: 14px; 
+  border-radius: 12px; 
+  border: 1px solid #e2e8f0; 
+  background-color: #f8fafc; 
+  font-weight: 600;
+  color: #2d3748;
+  outline: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.operator-select:focus { 
+  border-color: #d84e55; 
+  background-color: white;
+  box-shadow: 0 0 0 4px rgba(216, 78, 85, 0.1); 
+}
+
+.apply-btn-red { 
+  width: 100%; 
+  padding: 16px; 
+  background: #d84e55; 
+  color: white; 
+  border: none; 
+  border-radius: 12px; 
+  font-weight: 800; 
+  cursor: pointer; 
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+  margin-top: 15px; 
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.apply-btn-red:hover { 
+  background: #b03e44; 
+  transform: translateY(-3px); 
+  box-shadow: 0 8px 20px rgba(216, 78, 85, 0.35); 
+}
+
+.clear-text { 
+  font-size: 13px; 
+  color: #3182ce; 
+  cursor: pointer; 
+  font-weight: 700; 
+  text-decoration: none; 
+  margin-top: 12px;
+  display: inline-block;
+}
+.clear-text:hover { text-decoration: underline; color: #2c5282; }
+
+/* ================= BUS RESULTS & CARDS ================= */
+
+.bus-results-container { flex: 1; }
+.route-title { 
+  margin-bottom: 30px; 
+  font-weight: 800; 
+  color: #1a202c; 
+  font-size: 2rem; 
+  letter-spacing: -0.5px;
+}
+
+.modern-bus-card-wrapper {
+  background: white;
+  border-radius: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+  overflow: hidden;
+  border: 1px solid rgba(238, 242, 247, 1);
+  transition: all 0.4s ease;
+}
+
+.modern-bus-card-wrapper:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+  border-color: rgba(216, 78, 85, 0.2);
+}
+
+.bus-card-main {
+  display: flex;
+  padding: 30px;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.bus-info-left { flex: 1.5; }
+.operator-name { 
+  margin: 0; 
+  font-size: 26px; 
+  color: #1a202c; 
+  font-weight: 800; 
+}
+.bus-model-name { 
+  margin: 4px 0; 
+  font-size: 14px; 
+  font-weight: 600; 
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+.bus-type-text { 
+  color: #718096; 
+  font-size: 13px; 
+  margin-bottom: 20px; 
+  display: inline-block; 
+  background: #f7fafc; 
+  padding: 4px 12px; 
+  border-radius: 30px; 
+  border: 1px solid #edf2f7;
+}
+
+.timeline-row { display: flex; align-items: center; gap: 35px; margin-bottom: 20px; }
+.time-main { display: block; font-size: 24px; font-weight: 800; color: #2d3748; }
+.city-sub { font-size: 13px; color: #a0aec0; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+
+.arrow-divider { 
+  text-align: center; 
+  color: #cbd5e0; 
+  min-width: 100px; 
+  position: relative; 
+}
+.arrow-divider span { font-size: 24px; color: #d84e55; opacity: 0.6; }
+.arrow-divider small { 
+  display: block; 
+  color: #718096; 
+  font-size: 11px; 
+  margin-top: -2px; 
+  font-weight: 600; 
+}
+
+.rating-row { display: flex; align-items: center; gap: 12px; }
+.star-icons { color: #f6ad55; font-size: 15px; }
+.rating-num { 
+  background: #388e3c; 
+  color: white; 
+  padding: 5px 12px; 
+  border-radius: 8px; 
+  font-weight: 800; 
+  font-size: 14px; 
+  box-shadow: 0 4px 10px rgba(56, 142, 60, 0.2); 
+}
+
+.bus-action-right {
+  flex: 0.8;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  border-left: 1px dashed #e2e8f0;
+  padding-left: 35px;
+}
+
+.bus-card-img { 
+  width: 180px; 
+  height: 110px; 
+  border-radius: 15px; 
+  object-fit: contain; 
+  margin-bottom: 15px; 
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));
+}
+
+.modern-bus-card-wrapper:hover .bus-card-img { transform: scale(1.05); }
+
+.price-tag { 
+  font-size: 32px; 
+  font-weight: 900; 
+  color: #d84e55; 
+  margin-bottom: 12px; 
+}
+
+.select-seat-btn { 
+  background: #d84e55; 
+  color: white; 
+  border: none; 
+  padding: 12px 35px; 
+  border-radius: 10px; 
+  font-weight: 800; 
+  cursor: pointer; 
+  transition: all 0.3s ease; 
+  box-shadow: 0 6px 15px rgba(216, 78, 85, 0.15); 
+  font-size: 15px;
+}
+
+.select-seat-btn:hover { 
+  background: #b03e44; 
+  transform: translateY(-2px); 
+  box-shadow: 0 8px 20px rgba(216, 78, 85, 0.25); 
+}
+
+.seat-drawer { 
+  background: #fafbfc; 
+  padding: 40px; 
+  border-top: 2px solid #f1f5f9; 
+  animation: slideDown 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.drawer-content { 
+  display: flex; 
+  gap: 50px; 
+  justify-content: center; 
+  align-items: flex-start; 
+  flex-wrap: wrap; 
+}
+
+.status-msg { 
+  text-align: center; 
+  padding: 60px; 
+  color: #a0aec0; 
+  font-size: 20px; 
+  font-weight: 500;
+  font-style: italic; 
+}
+
+@media (max-width: 1024px) {
+  .bus-list-page-wrapper { padding: 20px 5%; flex-direction: column; }
+  .filters-sidebar-modern { width: 100%; position: relative; top: 0; border-radius: 15px; }
+  .bus-card-main { flex-direction: column; text-align: center; gap: 25px; }
+  .bus-action-right { 
+    border-left: none; 
+    border-top: 1px dashed #e2e8f0; 
+    padding-left: 0; 
+    padding-top: 25px; 
+    width: 100%; 
+    align-items: center; 
+  }
+  .timeline-row { justify-content: center; gap: 20px; }
+  .bus-card-img { width: 220px; height: auto; }
+}

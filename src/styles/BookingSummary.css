@@ -1,0 +1,176 @@
+.premium-booking-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px;
+  max-width: 430px;
+  margin: auto;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+  border: 1px solid #f0f2f5;
+  position: relative;
+}
+
+/* Stepper */
+.stepper-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 25px;
+}
+.step-node {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #edf2f7;
+  color: #718096;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  transition: 0.3s;
+}
+.step-node.active { background: #d84e55; color: white; box-shadow: 0 4px 12px rgba(216, 78, 85, 0.3); }
+.step-bar { width: 60px; height: 3px; background: #edf2f7; margin: 0 10px; border-radius: 2px; }
+.step-bar.active { background: #d84e55; }
+
+/* Timer Banner */
+.glass-timer {
+  background: rgba(216, 78, 85, 0.06);
+  border: 1px solid rgba(216, 78, 85, 0.1);
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  color: #d84e55;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+.main-title { font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 15px; }
+
+/* Fare Card */
+.fare-breakdown-card {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+.fare-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: #64748b; }
+.total-divider { height: 1px; background: #e2e8f0; margin: 15px 0; }
+.total-row { display: flex; justify-content: space-between; align-items: center; }
+.total-label { font-weight: 800; font-size: 16px; color: #1a202c; }
+.total-val { font-size: 22px; font-weight: 900; color: #d84e55; }
+
+/* OTP View Improvements */
+.otp-view { text-align: center; padding: 10px 0; }
+.otp-icon-wrap { margin-bottom: 15px; }
+.otp-shield { font-size: 40px; }
+.otp-title { font-size: 22px; font-weight: 800; color: #1e293b; margin-bottom: 5px; }
+.otp-subtitle { font-size: 14px; color: #64748b; margin-bottom: 25px; }
+
+/* Motha OTP Field */
+.otp-input-container { margin-bottom: 25px; }
+.motha-otp-field {
+  width: 100%;
+  max-width: 250px;
+  height: 60px;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 15px;
+  color: #1e293b;
+  background: #f8fafc;
+  outline: none;
+  transition: 0.3s;
+}
+.motha-otp-field:focus {
+  border-color: #d84e55;
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(216, 78, 85, 0.1);
+}
+
+/* Attractive Edit Info Box */
+.edit-info-box {
+  margin-top: 20px;
+  padding: 12px;
+  background: #f1f5f9;
+  border-radius: 12px;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-block;
+  width: 100%;
+  transition: 0.3s;
+  border: 1px dashed #cbd5e1;
+}
+.edit-info-box:hover {
+  background: #e2e8f0;
+  color: #d84e55;
+  border-color: #d84e55;
+}
+
+/* Input Fields */
+.section-head { font-size: 11px; font-weight: 900; color: #94a3b8; letter-spacing: 1px; margin-bottom: 12px; text-align: left; }
+.input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+.modern-field {
+  padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; outline: none; transition: 0.3s;
+}
+.modern-field:focus { border-color: #d84e55; box-shadow: 0 0 0 3px rgba(216, 78, 85, 0.08); }
+
+/* Passenger Details */
+.p-card-premium-v2 {
+  background: #ffffff;
+  border: 1px solid #eef2f6;
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  text-align: left;
+}
+.p-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.p-seat-tag { background: #d84e55; color: white; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; }
+.p-label { color: #94a3b8; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+.input-with-icon { position: relative; display: flex; align-items: center; }
+.user-icon { position: absolute; left: 12px; font-size: 14px; opacity: 0.5; }
+.p-input-field { width: 100%; padding: 12px 12px 12px 38px; border: 1.5px solid #f1f5f9; border-radius: 12px; font-size: 14px; background: #f8fafc; outline: none; }
+.p-details-row { display: flex; gap: 12px; align-items: center; margin-top: 10px; }
+.age-field { padding-left: 15px; width: 80px; }
+.gender-toggle-container { display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px; flex: 1; }
+.gender-btn { flex: 1; border: none; background: transparent; padding: 10px; font-size: 13px; font-weight: 700; color: #64748b; border-radius: 10px; cursor: pointer; }
+.gender-btn.selected.male { background: #2563eb; color: white; }
+.gender-btn.selected.female { background: #db2777; color: white; }
+
+/* Policy Stack */
+.policy-stack-vertical { margin: 20px 0; display: flex; flex-direction: column; gap: 12px; text-align: left; }
+.check-item-row { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.check-item-row label { font-size: 13px; color: #4a5568; line-height: 1.4; }
+.link { color: #2563eb; text-decoration: underline; font-weight: 700; cursor: pointer; }
+
+/* Main Button */
+.primary-btn-premium {
+  width: 100%;
+  background: linear-gradient(135deg, #d84e55 0%, #b03a40 100%);
+  color: white;
+  padding: 18px;
+  border: none;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(216, 78, 85, 0.25);
+}
+
+/* Modal */
+.policy-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex; justify-content: center; align-items: center; z-index: 1000;
+}
+.policy-modal-box {
+  background: white; width: 90%; max-width: 400px; padding: 25px; border-radius: 20px;
+}
+.modal-btn { width: 100%; background: #d84e55; color: white; border: none; padding: 12px; border-radius: 10px; margin-top: 20px; font-weight: 700; }

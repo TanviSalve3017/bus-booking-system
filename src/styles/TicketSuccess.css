@@ -1,0 +1,209 @@
+.ticket-page-wrapper {
+  background: #f4f7f6;
+  min-height: 100vh;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.success-header-top {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.check-icon {
+  background: #27ae60;
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin: 0 auto 10px;
+}
+
+.ticket-main-container {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  overflow: hidden;
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.ticket-top-strip {
+  background: #fcfcfc;
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.pnr-info .label {
+  font-size: 11px;
+  color: #888;
+  letter-spacing: 1px;
+}
+
+.pnr-value {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 22px;
+}
+
+.qr-code-box img {
+  width: 60px;
+}
+
+.bus-branding {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.bus-branding h2 {
+  color: #1a237e;
+  margin: 0;
+  font-size: 24px;
+}
+
+.bus-type {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+}
+
+.journey-track {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 20px;
+}
+
+.stop h4 { margin: 0; font-size: 18px; text-transform: capitalize; }
+.stop p { margin: 0; font-size: 13px; color: #888; }
+
+.bus-path {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: center;
+}
+
+.line { height: 1px; background: #ddd; flex: 1; }
+.bus-emoji { margin: 0 10px; font-size: 18px; }
+
+.ticket-divider {
+  position: relative;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.ticket-divider::before {
+  content: "";
+  border-top: 2px dashed #eee;
+  width: 100%;
+}
+
+.cut-left, .cut-right {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: #f4f7f6;
+  border-radius: 50%;
+}
+.cut-left { left: -10px; }
+.cut-right { right: -10px; }
+
+.passenger-section {
+  padding: 0 20px;
+}
+
+.passenger-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.passenger-table th {
+  text-align: left;
+  font-size: 11px;
+  color: #999;
+  text-transform: uppercase;
+  padding-bottom: 10px;
+}
+
+.passenger-table td {
+  padding: 10px 0;
+  font-size: 15px;
+  font-weight: 500;
+  border-bottom: 1px solid #f9f9f9;
+}
+
+.seat-no { color: #d32f2f; font-weight: bold !important; }
+
+.travel-meta {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.meta-item .label { display: block; font-size: 11px; color: #888; }
+
+.status-badge {
+  color: #27ae60;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.fare-footer {
+  background: #f8faff;
+  margin: 0 20px;
+  padding: 15px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fare-footer span { color: #555; }
+.fare-footer h3 { margin: 0; color: #1a237e; }
+
+.ticket-instructions {
+  padding: 15px 20px;
+  font-size: 10px;
+  color: #999;
+}
+
+.ticket-instructions ul { padding: 0; list-style: none; margin: 0; }
+
+.action-buttons-fixed {
+  margin-top: 30px;
+  display: flex;
+  gap: 15px;
+}
+
+.btn-download {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-home {
+  background: #34495e;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
