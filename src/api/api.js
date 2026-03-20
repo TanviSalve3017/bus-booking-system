@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5001",
+  baseURL: "https://bus-booking-backend-zd3f.onrender.com",
 });
 
 export default api;
