@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
+import api from "../api"; // ✅ १. आपली api.js फाईल इथे इम्पोर्ट केली
 import { useLocation, useNavigate } from "react-router-dom";
 import SeatLayout from "./SeatLayout";
 import BookingSummary from "./BookingSummary"; 
-import PaymentPage from "./PaymentPage"; // आता ही लाईन ब्राइट दिसेल!
+import PaymentPage from "./PaymentPage"; 
 import "../styles/BusList.css"; 
 import busImg from "../assets/bus.image.png";
 
@@ -18,7 +19,6 @@ const BusList = () => {
   const [busSeats, setBusSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
   
-  // पेमेंट पेज रेंडर करण्यासाठी ही नवीन स्टेट वापरली आहे
   const [isPaymentStep, setIsPaymentStep] = useState(false);
 
   const location = useLocation();
@@ -26,7 +26,6 @@ const BusList = () => {
   const queryParams = new URLSearchParams(location.search);
   const from = queryParams.get("from") || "";
   const to = queryParams.get("to") || "";
-  // तारीख URL मधून मिळवण्यासाठी (नसल्यास आजची तारीख किंवा डिफॉल्ट)
   const travelDate = queryParams.get("date") || "2026-03-10";
 
   const toggleAmenity = (am) => {
@@ -38,7 +37,8 @@ const BusList = () => {
   const fetchBuses = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5001/buses", {
+      // ✅ २. 'axios' ऐवजी 'api' वापरलं आणि पाथ '/api/buses' केला
+      const res = await api.get("/api/buses", {
         params: { 
           from: from.trim().toLowerCase(), 
           to: to.trim().toLowerCase(), 
@@ -64,7 +64,8 @@ const BusList = () => {
       return;
     }
     try {
-      const res = await axios.get(`http://localhost:5001/seats/${busId}`);
+      // ✅ ३. 'axios' ऐवजी 'api' वापरलं आणि पाथ '/api/seats' केला
+      const res = await api.get(`/api/seats/${busId}`);
       setBusSeats(res.data);
       setSelectedBusId(busId);
       setSelectedSeats([]);
@@ -89,7 +90,7 @@ const BusList = () => {
       busName: selectedBus?.operator_name || "Luxury Travels",
       from: from,
       to: to,
-      travelDate: travelDate, // तारीख समाविष्ट केली
+      travelDate: travelDate,
       seats: selectedSeats,
       totalFare: data.totalAmount, 
       totalAmount: data.totalAmount, 
@@ -100,16 +101,11 @@ const BusList = () => {
       droppingPoint: data.droppingPoint
     };
     
-    // जर तुला याच पेजवर पेमेंट दाखवायचं असेल तर:
-    // setIsPaymentStep(true); 
-    
-    // किंवा आधीप्रमाणे नेव्हिगेट करायचं असेल तर:
     navigate("/payment", { state: { bookingDetails: completeData } });
   };
 
   return (
     <div className="bus-list-page-wrapper">
-      {/* जर इस पेमेंट स्टेप ट्रु असेल तर पेमेंट पेज दाखवा */}
       {isPaymentStep ? (
         <PaymentPage />
       ) : (
@@ -221,9 +217,9 @@ const BusList = () => {
                                 onConfirm={onBookingConfirm} 
                                 from={from}
                                 to={to}
-                                busName={bus.operator_name} // ॲड केले
-                                busId={bus.bus_id}         // ॲड केले
-                                travelDate={travelDate}    // ॲड केले
+                                busName={bus.operator_name} 
+                                busId={bus.bus_id}      
+                                travelDate={travelDate}    
                               />
                           )}
                         </div>
