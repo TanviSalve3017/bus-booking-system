@@ -1,39 +1,51 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import { useTranslation } from "react-i18next"; // i18n इंपोर्ट
+import { useTranslation } from "react-i18next";
 
 const Register = () => {
-    const { t, i18n } = useTranslation(); // t आणि i18n हुक्स
+    const { t, i18n } = useTranslation();
     const [formData, setFormData] = useState({ name: "", email: "", password: "", mobile: "" });
-    const [loading, setLoading] = useState(false); // लोडिंग स्टेट ॲड केली
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+
+    // ✅ बॅकएंड URL सेट केली (Localhost आणि Render दोन्हीसाठी चालेल)
+    const API_BASE_URL = process.env.REACT_APP_API_URL || "https://bus-reservation-system-backend-j.onrender.com";
 
     const handleRegister = async (e) => {
         e.preventDefault();
 
-        // मोबाईल नंबर व्हॅलिडेशन (१० अंकी)
+        // मोबाईल नंबर व्हॅलिडेशन
         if (formData.mobile.length !== 10) {
             alert(t('invalid_mobile') || "कृपया १० अंकी मोबाईल नंबर टाका.");
             return;
         }
 
-        setLoading(true); // प्रोसेस सुरू झाली
+        setLoading(true);
         try {
-            const res = await axios.post("http://localhost:5001/api/register", formData);
+            // ✅ API ला कॉल करताना आता आपण Dynamic URL वापरत आहोत
+            const res = await axios.post(`${API_BASE_URL}/api/register`, formData);
+            
             if (res.data.success) {
-                // i18n मधून 'register_success_alert' की नुसार मेसेज येईल
                 alert(t('register_success_alert') || "नोंदणी यशस्वी! आता लॉगिन करा.");
                 navigate("/login");
             }
         } catch (err) {
-            // जर ईमेल आधीच असेल तर बॅकएंडवरून येणारा मेसेज दाखवेल
-            const errorMsg = err.response?.data?.message === "Email already exists" 
-                             ? t('email_exists_alert') 
-                             : (t('registration_failed') || "नोंदणी अयशस्वी!");
+            console.error("Registration Error:", err);
+            
+            // ✅ बॅकएंडवरून येणारा अचूक एरर मेसेज दाखवणे
+            const serverMsg = err.response?.data?.message;
+            let errorMsg = t('registration_failed') || "नोंदणी अयशस्वी!";
+
+            if (serverMsg === "Email already exists") {
+                errorMsg = t('email_exists_alert') || "हा ईमेल आधीच नोंदणीकृत आहे!";
+            } else if (err.response?.data?.error) {
+                errorMsg = `Error: ${err.response.data.error}`;
+            }
+
             alert(errorMsg);
         } finally {
-            setLoading(false); // प्रोसेस संपली
+            setLoading(false);
         }
     };
 
@@ -44,7 +56,6 @@ const Register = () => {
     return (
         <div style={{ maxWidth: "450px", margin: "60px auto", padding: "30px", border: "1px solid #e2e8f0", borderRadius: "12px", boxShadow: "0 10px 25px rgba(0,0,0,0.1)", backgroundColor: "#fff" }}>
             
-            {/* भाषेचा ड्रॉपडाऊन */}
             <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "15px" }}>
                 <select 
                     onChange={changeLanguage} 
@@ -64,6 +75,7 @@ const Register = () => {
                     type="text" 
                     placeholder={t('full_name') || "पूर्ण नाव"} 
                     required 
+                    value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})} 
                     style={{ padding: "12px", borderRadius: "6px", border: "1px solid #cbd5e0" }} 
                 />
@@ -72,6 +84,7 @@ const Register = () => {
                     type="email" 
                     placeholder={t('enter_email') || "ईमेल आयडी"} 
                     required 
+                    value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})} 
                     style={{ padding: "12px", borderRadius: "6px", border: "1px solid #cbd5e0" }} 
                 />
@@ -80,21 +93,23 @@ const Register = () => {
                     type="password" 
                     placeholder={t('set_password') || "पासवर्ड सेट करा"} 
                     required 
+                    value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})} 
                     style={{ padding: "12px", borderRadius: "6px", border: "1px solid #cbd5e0" }} 
                 />
                 
                 <input 
-                    type="number" // नंबर टाईप केला ज्यामुळे फक्त आकडे टाकता येतील
+                    type="number" 
                     placeholder={t('mobile_number') || "मोबाईल नंबर"} 
                     required 
+                    value={formData.mobile}
                     onChange={(e) => setFormData({...formData, mobile: e.target.value})} 
                     style={{ padding: "12px", borderRadius: "6px", border: "1px solid #cbd5e0" }} 
                 />
                 
                 <button 
                     type="submit" 
-                    disabled={loading} // लोडिंग सुरू असताना बटन डिसेबल होईल
+                    disabled={loading}
                     style={{ 
                         padding: "12px", 
                         backgroundColor: loading ? "#a0aec0" : "#48bb78", 
