@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import axios from "axios";
-import api from "../api"; // ✅ १. आपली api.js फाईल इथे इम्पोर्ट केली
+import api from "../api"; // ✅ १. आपली api.js फाईल वापरली जेणेकरून localhost एरर येणार नाही
 import { useLocation, useNavigate } from "react-router-dom";
 import SeatLayout from "./SeatLayout";
 import BookingSummary from "./BookingSummary"; 
@@ -37,7 +36,7 @@ const BusList = () => {
   const fetchBuses = useCallback(async () => {
     setLoading(true);
     try {
-      // ✅ २. 'axios' ऐवजी 'api' वापरलं आणि पाथ '/api/buses' केला
+      // ✅ २. इथे 'api' वापरला आहे, जो थेट तुझ्या Render बॅकएंडला कॉल करेल
       const res = await api.get("/api/buses", {
         params: { 
           from: from.trim().toLowerCase(), 
@@ -49,7 +48,9 @@ const BusList = () => {
         }
       });
       setBuses(res.data);
-    } catch (e) { console.error("Fetch error:", e); }
+    } catch (e) { 
+      console.error("Fetch error details:", e.response?.data || e.message); 
+    }
     setLoading(false);
   }, [from, to, busType, priceRange, operator, selectedAmenities]);
 
@@ -64,12 +65,14 @@ const BusList = () => {
       return;
     }
     try {
-      // ✅ ३. 'axios' ऐवजी 'api' वापरलं आणि पाथ '/api/seats' केला
+      // ✅ ३. सीट्स मिळवण्यासाठी पण 'api' वापरला
       const res = await api.get(`/api/seats/${busId}`);
       setBusSeats(res.data);
       setSelectedBusId(busId);
       setSelectedSeats([]);
-    } catch (e) { console.error("Error fetching seats", e); }
+    } catch (e) { 
+        console.error("Error fetching seats:", e.response?.data || e.message); 
+    }
   };
 
   const toggleSeatSelection = (seatNumber) => {
