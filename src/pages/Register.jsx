@@ -9,13 +9,15 @@ const Register = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    // ✅ बॅकएंड URL सेट केली (Localhost आणि Render दोन्हीसाठी चालेल)
-    const API_BASE_URL = process.env.REACT_APP_API_URL || "https://bus-reservation-system-backend-j.onrender.com";
+    // ✅ Render ची लिंक आणि Localhost दोन्ही मॅनेज करण्यासाठी लॉजिक
+    const API_BASE_URL = window.location.hostname === "localhost" 
+        ? "http://localhost:5001" 
+        : "https://bus-reservation-system-backend-j.onrender.com";
 
     const handleRegister = async (e) => {
         e.preventDefault();
 
-        // मोबाईल नंबर व्हॅलिडेशन
+        // मोबाईल नंबर व्हॅलिडेशन (१० अंकी)
         if (formData.mobile.length !== 10) {
             alert(t('invalid_mobile') || "कृपया १० अंकी मोबाईल नंबर टाका.");
             return;
@@ -23,7 +25,7 @@ const Register = () => {
 
         setLoading(true);
         try {
-            // ✅ API ला कॉल करताना आता आपण Dynamic URL वापरत आहोत
+            // ✅ API ला कॉल करताना आपण आता डायनॅमिक URL वापरत आहोत
             const res = await axios.post(`${API_BASE_URL}/api/register`, formData);
             
             if (res.data.success) {
@@ -33,7 +35,7 @@ const Register = () => {
         } catch (err) {
             console.error("Registration Error:", err);
             
-            // ✅ बॅकएंडवरून येणारा अचूक एरर मेसेज दाखवणे
+            // ✅ बॅकएंडवरून येणारा अचूक एरर मेसेज युजरला दाखवणे
             const serverMsg = err.response?.data?.message;
             let errorMsg = t('registration_failed') || "नोंदणी अयशस्वी!";
 
@@ -56,6 +58,7 @@ const Register = () => {
     return (
         <div style={{ maxWidth: "450px", margin: "60px auto", padding: "30px", border: "1px solid #e2e8f0", borderRadius: "12px", boxShadow: "0 10px 25px rgba(0,0,0,0.1)", backgroundColor: "#fff" }}>
             
+            {/* भाषेचा ड्रॉपडाऊन */}
             <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "15px" }}>
                 <select 
                     onChange={changeLanguage} 
