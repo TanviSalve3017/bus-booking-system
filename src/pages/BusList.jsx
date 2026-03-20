@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import api from "../api"; // ✅ १. आपली api.js फाईल वापरली जेणेकरून localhost एरर येणार नाही
+import api from "../api/api";
 import { useLocation, useNavigate } from "react-router-dom";
 import SeatLayout from "./SeatLayout";
 import BookingSummary from "./BookingSummary"; 
