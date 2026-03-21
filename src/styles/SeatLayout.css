@@ -29,7 +29,7 @@
 .deck-selector {
   display: flex;
   justify-content: center;
-  gap: 0; /* गॅप काढून टाकला जेणेकरून बटन्स चिटकून येतील */
+  gap: 0; 
   margin-bottom: 25px;
 }
 .deck-selector button {
@@ -69,12 +69,19 @@
 
 .steering-icon { font-size: 20px; color: #f56565; }
 
-/* सीट्समधील स्पेससाठी बदल */
+/* --- SEAT GRID LOGIC --- */
 .seat-grid {
   display: grid;
-  grid-template-columns: repeat(2, 45px) 40px repeat(2, 45px); /* मधला कॉलम रस्त्यासाठी (40px) */
-  gap: 20px 10px; /* उभ्या सीट्समध्ये २०px ची स्पेस */
+  /* २ सीट्स (डावे) | १ रस्ता (२०px) | २ सीट्स (उजवे) */
+  grid-template-columns: repeat(2, 50px) 20px repeat(2, 50px);
+  gap: 15px 8px; 
   justify-content: center;
+  align-items: start;
+}
+
+/* मधल्या रस्त्यासाठी (Empty Div) लॉजिक */
+.aisle-space {
+  grid-column: 3;
 }
 
 .seat-box {
@@ -91,16 +98,21 @@
   box-shadow: inset 0 -3px 0 rgba(0,0,0,0.1);
 }
 
-.seater { width: 45px; height: 45px; }
-.sleeper { width: 45px; height: 90px; grid-row: span 2; }
+/* सीट्सचे आकार */
+.seater { width: 50px; height: 50px; }
+.sleeper { 
+  width: 50px; 
+  height: 110px; /* स्लीपरसाठी जास्त उंची */
+  grid-row: span 2; /* दोन रो घेणार */
+}
 
-/* उशीचे डिझाइन (Pillow) */
+/* उशीचे डिझाइन */
 .seat-inner-pillow {
   width: 80%;
-  height: 6px;
-  background: rgba(0,0,0,0.05);
+  height: 8px;
+  background: rgba(0,0,0,0.1);
   position: absolute;
-  top: 4px;
+  top: 5px;
   border-radius: 2px;
 }
 
@@ -110,11 +122,15 @@
 .selected-blue { background: #42a5f5; border: 1.5px solid #1e88e5; color: white !important; }
 .booked-gray { background: #bdbdbd; border: 1.5px solid #9e9e9e; cursor: not-allowed; color: #757575; }
 
-.seat-id-text { z-index: 1; }
+.seat-id-text { z-index: 1; margin-top: 10px; }
 .lock-icon { font-size: 12px; margin-top: 2px; }
 
 .bus-bottom-graphic {
   margin-top: 35px;
   text-align: center;
 }
-.bus-bottom-graphic img { width: 120px; opacity: 0.9; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
+.bus-bottom-graphic img { 
+  width: 120px; 
+  opacity: 0.9; 
+  filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); 
+}
