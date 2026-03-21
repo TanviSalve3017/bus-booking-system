@@ -15,10 +15,10 @@ const Register = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    // ✅ Render आणि Localhost मॅनेजमेंट
+    // ✅ Render आणि Localhost मॅनेजमेंट (URL Fixed with Quotes and Colon)
     const API_BASE_URL = window.location.hostname === "localhost" 
         ? "http://localhost:5001" 
-        : "https://bus-reservation-system-backend-j.onrender.com";
+        : "https://bus-booking-backend-zd3f.onrender.com";
 
     const handleRegister = async (e) => {
         e.preventDefault();
