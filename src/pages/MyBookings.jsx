@@ -8,6 +8,11 @@ const MyBookings = () => {
     const userString = localStorage.getItem("user");
     const user = userString ? JSON.parse(userString) : null;
 
+    // ✅ १. डायनॅमिक URL लॉजिक (लोकल आणि रेंडर दोन्हीसाठी)
+    const API_BASE_URL = window.location.hostname === "localhost" 
+        ? "http://localhost:5001" 
+        : "https://bus-booking-backend-zd3f.onrender.com";
+
     const translations = {
         en: {
             title: "My Bookings 🎫",
@@ -65,8 +70,6 @@ const MyBookings = () => {
     const formatDate = (dateStr) => {
         if (!dateStr) return "";
         
-        // जर बॅकएंडकडून "2026-03-20" अशी स्ट्रिंग येत असेल (जी आपण बॅकएंडला फिक्स केली आहे)
-        // तर आपण फक्त '-' ने स्प्लिट करून तारीख दाखवू, जेणेकरून Timezone चा संबंध उरणार नाही.
         if (dateStr.includes("-") && !dateStr.includes("T")) {
             const [year, month, day] = dateStr.split("-");
             return `${day}/${month}/${year}`;
@@ -86,7 +89,8 @@ const MyBookings = () => {
         if (user) {
             const uid = user.user_id || user.id;
             setLoading(true);
-            axios.get(`http://localhost:5001/api/my-bookings/${uid}`)
+            // ✅ २. इथे API_BASE_URL वापरला आहे
+            axios.get(`${API_BASE_URL}/api/my-bookings/${uid}`)
                 .then(res => {
                     setBookings(res.data);
                     setLoading(false);
@@ -103,10 +107,10 @@ const MyBookings = () => {
 
     const handleCancelTicket = (pnr) => {
         if (window.confirm(t.confirmCancel)) {
-            axios.put(`http://localhost:5001/api/cancel-ticket/${pnr}`)
+            // ✅ ३. इथे सुद्धा API_BASE_URL वापरला आहे
+            axios.put(`${API_BASE_URL}/api/cancel-ticket/${pnr}`)
                 .then(res => {
                     if (res.data.success) {
-                        // रिफंड मेसेज दाखवणे
                         alert(res.data.message); 
                         fetchBookings(); 
                     }
