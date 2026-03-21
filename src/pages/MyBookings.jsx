@@ -8,7 +8,7 @@ const MyBookings = () => {
     const userString = localStorage.getItem("user");
     const user = userString ? JSON.parse(userString) : null;
 
-    // ✅ १. डायनॅमिक URL लॉजिक (लोकल आणि रेंडर दोन्हीसाठी)
+    // ✅ १. डायनॅमिक URL लॉजिक
     const API_BASE_URL = window.location.hostname === "localhost" 
         ? "http://localhost:5001" 
         : "https://bus-booking-backend-zd3f.onrender.com";
@@ -66,22 +66,17 @@ const MyBookings = () => {
 
     const t = translations[lang];
 
-    // --- FIX: Manual Date Formatter (Timezone सुरक्षित) ---
     const formatDate = (dateStr) => {
         if (!dateStr) return "";
-        
         if (dateStr.includes("-") && !dateStr.includes("T")) {
             const [year, month, day] = dateStr.split("-");
             return `${day}/${month}/${year}`;
         }
-
         const date = new Date(dateStr);
         if (isNaN(date.getTime())) return dateStr;
-        
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
-        
         return `${day}/${month}/${year}`;
     };
 
@@ -89,13 +84,19 @@ const MyBookings = () => {
         if (user) {
             const uid = user.user_id || user.id;
             setLoading(true);
-            // ✅ २. इथे API_BASE_URL वापरला आहे
+            
+            // ✅ बदल: तुझ्या बॅकएंडमध्ये रूट /api/my-bookings आहे की फक्त /my-bookings हे एकदा तपासा.
+            // जर /api/ ला ४०४ येत असेल, तर फक्त `${API_BASE_URL}/my-bookings/${uid}` वापरून पहा.
             axios.get(`${API_BASE_URL}/api/my-bookings/${uid}`)
                 .then(res => {
+                    console.log("Bookings Data:", res.data); // Debugging साठी
                     setBookings(res.data);
                     setLoading(false);
                 })
-                .catch(err => setLoading(false));
+                .catch(err => {
+                    console.error("Fetch Error:", err.response || err);
+                    setLoading(false);
+                });
         } else {
             setLoading(false);
         }
@@ -107,7 +108,6 @@ const MyBookings = () => {
 
     const handleCancelTicket = (pnr) => {
         if (window.confirm(t.confirmCancel)) {
-            // ✅ ३. इथे सुद्धा API_BASE_URL वापरला आहे
             axios.put(`${API_BASE_URL}/api/cancel-ticket/${pnr}`)
                 .then(res => {
                     if (res.data.success) {
@@ -143,7 +143,7 @@ const MyBookings = () => {
             {loading ? (
                 <div style={{ textAlign: "center", padding: "50px", color: "#4a5568" }}>{t.loading}</div>
             ) : bookings.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "60px", backgroundColor: "#fff", borderRadius: "15px" }}>
+                <div style={{ textAlign: "center", padding: "60px", backgroundColor: "#fff", borderRadius: "15px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)" }}>
                     <p style={{ fontSize: "20px", color: "#718096" }}>{t.noBookings}</p>
                 </div>
             ) : (
@@ -154,7 +154,7 @@ const MyBookings = () => {
                             display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 4px 10px rgba(0,0,0,0.03)"
                         }}>
                             <div style={{ flex: 2 }}>
-                                <h3 style={{ margin: "0 0 10px 0", color: "#2b6cb0", fontSize: "22px" }}>{b.bus_name}</h3>
+                                <h3 style={{ margin: "0 0 10px 0", color: "#2b6cb0", fontSize: "22px" }}>{b.bus_name || "Bus Details"}</h3>
                                 <div style={{ marginBottom: "12px" }}>
                                     <span style={{ backgroundColor: "#edf2f7", padding: "4px 10px", borderRadius: "6px", fontSize: "12px", fontWeight: "bold" }}>
                                         {t.pnr}: {b.pnr}
