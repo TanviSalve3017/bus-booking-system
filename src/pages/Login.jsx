@@ -9,10 +9,16 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
+    // ✅ हे लॉजिक ॲड केलं आहे: लोकलहोस्ट असेल तर ५००१ आणि नेटलिफाय असेल तर रेंडरची लिंक
+    const API_BASE_URL = window.location.hostname === "localhost" 
+        ? "http://localhost:5001" 
+        : "https://bus-reservation-system-backend-j.onrender.com";
+
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post("http://localhost:5001/api/login", { email, password });
+            // ✅ "http://localhost:5001" ऐवजी आता `${API_BASE_URL}` वापरलं आहे
+            const res = await axios.post(`${API_BASE_URL}/api/login`, { email, password });
             
             if (res.data.success) {
                 // युजरचा पूर्ण ऑब्जेक्ट सेव्ह करा
@@ -46,8 +52,9 @@ const Login = () => {
             </div>
             <h2 style={{ textAlign: "center", color: "#2d3748" }}>{t('login')} 🔑</h2>
             <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-                <input type="email" placeholder="Email" required onChange={(e) => setEmail(e.target.value)} style={{ padding: "12px", borderRadius: "6px", border: "1px solid #cbd5e0" }} />
-                <input type="password" placeholder="Password" required onChange={(e) => setPassword(e.target.value)} style={{ padding: "12px", borderRadius: "6px", border: "1px solid #cbd5e0" }} />
+                {/* placeholder मध्ये पण translate लॉजिक वापरलं आहे */}
+                <input type="email" placeholder={t('enter_email') || "Email"} required onChange={(e) => setEmail(e.target.value)} style={{ padding: "12px", borderRadius: "6px", border: "1px solid #cbd5e0" }} />
+                <input type="password" placeholder={t('set_password') || "Password"} required onChange={(e) => setPassword(e.target.value)} style={{ padding: "12px", borderRadius: "6px", border: "1px solid #cbd5e0" }} />
                 <button type="submit" style={{ padding: "12px", backgroundColor: "#3182ce", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "bold" }}>
                     {t('login')}
                 </button>
