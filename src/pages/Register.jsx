@@ -5,11 +5,17 @@ import { useTranslation } from "react-i18next";
 
 const Register = () => {
     const { t, i18n } = useTranslation();
-    const [formData, setFormData] = useState({ name: "", email: "", password: "", confirmPassword: "", mobile: "" }); // confirmPassword ॲड केले
+    const [formData, setFormData] = useState({ 
+        name: "", 
+        email: "", 
+        password: "", 
+        confirmPassword: "", 
+        mobile: "" 
+    });
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    // ✅ Render ची लिंक आणि Localhost मॅनेजमेंट
+    // ✅ Render आणि Localhost मॅनेजमेंट
     const API_BASE_URL = window.location.hostname === "localhost" 
         ? "http://localhost:5001" 
         : "https://bus-reservation-system-backend-j.onrender.com";
@@ -40,7 +46,7 @@ const Register = () => {
             return;
         }
 
-        // ५. ✅ नवीन लॉजिक: Confirm Password मॅच होणे गरजेचे आहे
+        // ५. Confirm Password मॅच होणे गरजेचे आहे
         if (formData.password !== formData.confirmPassword) {
             alert(t('password_mismatch') || "पासवर्ड मॅच होत नाहीत!");
             return;
@@ -71,7 +77,7 @@ const Register = () => {
             } else if (err.response?.data?.error) {
                 errorMsg = `Error: ${err.response.data.error}`;
             } else if (err.code === "ERR_NETWORK") {
-                errorMsg = "सर्व्हरशी संपर्क होऊ शकला नाही. कृपया बॅकएंड चालू असल्याची खात्री करा.";
+                errorMsg = "सर्व्हरशी संपर्क होऊ शकला नाही. कृपया बॅकएंड चालू असल्याची खात्री करा (Render ला वेळ लागू शकतो).";
             }
 
             alert(errorMsg);
@@ -85,13 +91,14 @@ const Register = () => {
     };
 
     return (
-        <div style={{ maxWidth: "450px", margin: "60px auto", padding: "30px", border: "1px solid #e2e8f0", borderRadius: "12px", boxShadow: "0 10px 25px rgba(0,0,0,0.1)", backgroundColor: "#fff" }}>
+        <div style={{ maxWidth: "450px", margin: "60px auto", padding: "30px", border: "1px solid #e2e8f0", borderRadius: "12px", boxShadow: "0 10px 25px rgba(0,0,0,0.1)", backgroundColor: "#fff", fontFamily: "'Segoe UI', Roboto, sans-serif" }}>
             
+            {/* भाषा निवड */}
             <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "15px" }}>
                 <select 
                     onChange={changeLanguage} 
                     value={i18n.language}
-                    style={{ padding: "5px", borderRadius: "4px", border: "1px solid #cbd5e0", fontSize: "12px", cursor: "pointer" }}
+                    style={{ padding: "5px 10px", borderRadius: "6px", border: "1px solid #cbd5e0", fontSize: "14px", cursor: "pointer", outline: "none" }}
                 >
                     <option value="en">English</option>
                     <option value="mr">मराठी</option>
@@ -99,81 +106,98 @@ const Register = () => {
                 </select>
             </div>
 
-            <h2 style={{ textAlign: "center", color: "#2d3748", marginBottom: "20px" }}>{t('register')} 🚌</h2>
+            <h2 style={{ textAlign: "center", color: "#2d3748", marginBottom: "10px", fontSize: "24px" }}>{t('register')} 🚌</h2>
+            <p style={{ textAlign: "center", color: "#718096", marginBottom: "25px", fontSize: "14px" }}>तुमचा प्रवास आजच सुरू करा!</p>
             
-            <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                <input 
-                    type="text" 
-                    placeholder={t('full_name') || "पूर्ण नाव"} 
-                    required 
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})} 
-                    style={{ padding: "12px", borderRadius: "6px", border: "1px solid #cbd5e0" }} 
-                />
+            <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                <div>
+                    <label style={{ fontSize: "14px", fontWeight: "600", color: "#4a5568", marginBottom: "5px", display: "block" }}>{t('full_name') || "पूर्ण नाव"}</label>
+                    <input 
+                        type="text" 
+                        placeholder="उदा. राहुल पाटील" 
+                        required 
+                        value={formData.name}
+                        onChange={(e) => setFormData({...formData, name: e.target.value})} 
+                        style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #cbd5e0", boxSizing: "border-box", fontSize: "15px" }} 
+                    />
+                </div>
                 
-                <input 
-                    type="email" 
-                    placeholder={t('enter_email') || "ईमेल आयडी"} 
-                    required 
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})} 
-                    style={{ padding: "12px", borderRadius: "6px", border: "1px solid #cbd5e0" }} 
-                />
+                <div>
+                    <label style={{ fontSize: "14px", fontWeight: "600", color: "#4a5568", marginBottom: "5px", display: "block" }}>{t('enter_email') || "ईमेल आयडी"}</label>
+                    <input 
+                        type="email" 
+                        placeholder="example@mail.com" 
+                        required 
+                        value={formData.email}
+                        onChange={(e) => setFormData({...formData, email: e.target.value})} 
+                        style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #cbd5e0", boxSizing: "border-box", fontSize: "15px" }} 
+                    />
+                </div>
                 
-                <input 
-                    type="password" 
-                    placeholder={t('set_password') || "पासवर्ड (किमान ६ अक्षरे)"} 
-                    required 
-                    value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})} 
-                    style={{ padding: "12px", borderRadius: "6px", border: "1px solid #cbd5e0" }} 
-                />
-
-                {/* ✅ नवीन Confirm Password इनपुट */}
-                <input 
-                    type="password" 
-                    placeholder={t('confirm_password') || "पासवर्ड पुन्हा टाका"} 
-                    required 
-                    value={formData.confirmPassword}
-                    onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})} 
-                    style={{ padding: "12px", borderRadius: "6px", border: "1px solid #cbd5e0" }} 
-                />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                    <div>
+                        <label style={{ fontSize: "14px", fontWeight: "600", color: "#4a5568", marginBottom: "5px", display: "block" }}>{t('set_password') || "पासवर्ड"}</label>
+                        <input 
+                            type="password" 
+                            placeholder="******" 
+                            required 
+                            value={formData.password}
+                            onChange={(e) => setFormData({...formData, password: e.target.value})} 
+                            style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #cbd5e0", boxSizing: "border-box", fontSize: "15px" }} 
+                        />
+                    </div>
+                    <div>
+                        <label style={{ fontSize: "14px", fontWeight: "600", color: "#4a5568", marginBottom: "5px", display: "block" }}>{t('confirm_password') || "पुष्टी करा"}</label>
+                        <input 
+                            type="password" 
+                            placeholder="******" 
+                            required 
+                            value={formData.confirmPassword}
+                            onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})} 
+                            style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #cbd5e0", boxSizing: "border-box", fontSize: "15px" }} 
+                        />
+                    </div>
+                </div>
                 
-                <input 
-                    type="number" 
-                    placeholder={t('mobile_number') || "मोबाईल नंबर (१० अंकी)"} 
-                    required 
-                    value={formData.mobile}
-                    onChange={(e) => {
-                        if (e.target.value.length <= 10) {
-                            setFormData({...formData, mobile: e.target.value})
-                        }
-                    }} 
-                    style={{ padding: "12px", borderRadius: "6px", border: "1px solid #cbd5e0" }} 
-                />
+                <div>
+                    <label style={{ fontSize: "14px", fontWeight: "600", color: "#4a5568", marginBottom: "5px", display: "block" }}>{t('mobile_number') || "मोबाईल नंबर"}</label>
+                    <input 
+                        type="number" 
+                        placeholder="९८XXXXXXXX" 
+                        required 
+                        value={formData.mobile}
+                        onChange={(e) => {
+                            if (e.target.value.length <= 10) {
+                                setFormData({...formData, mobile: e.target.value})
+                            }
+                        }} 
+                        style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #cbd5e0", boxSizing: "border-box", fontSize: "15px" }} 
+                    />
+                </div>
                 
                 <button 
                     type="submit" 
                     disabled={loading}
                     style={{ 
-                        padding: "12px", 
+                        padding: "14px", 
                         backgroundColor: loading ? "#a0aec0" : "#48bb78", 
                         color: "white", 
                         border: "none", 
-                        borderRadius: "6px", 
+                        borderRadius: "8px", 
                         cursor: loading ? "not-allowed" : "pointer", 
                         fontWeight: "bold", 
                         fontSize: "16px", 
                         marginTop: "10px",
-                        transition: "0.3s"
+                        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                        transition: "all 0.3s ease"
                     }}
                 >
                     {loading ? (t('processing') || "प्रक्रिया सुरू आहे...") : t('register')}
                 </button>
             </form>
             
-            <p style={{ textAlign: "center", marginTop: "20px", color: "#4a5568" }}>
-                {t('already_have_account')} <Link to="/login" style={{ color: "#48bb78", textDecoration: "none", fontWeight: "bold" }}>{t('login')}</Link>
+            <p style={{ textAlign: "center", marginTop: "25px", color: "#4a5568", fontSize: "15px" }}>
+                {t('already_have_account')} <Link to="/login" style={{ color: "#38a169", textDecoration: "none", fontWeight: "bold" }}>{t('login')}</Link>
             </p>
         </div>
     );
