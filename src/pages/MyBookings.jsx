@@ -8,7 +8,7 @@ const MyBookings = () => {
     const userString = localStorage.getItem("user");
     const user = userString ? JSON.parse(userString) : null;
 
-    // ✅ १. डायनॅमिक URL लॉजिक (Render पत्ता बरोबर आहे)
+    // ✅ डायनॅमिक URL लॉजिक
     const API_BASE_URL = window.location.hostname === "localhost" 
         ? "http://localhost:5001" 
         : "https://bus-booking-backend-zd3f.onrender.com";
@@ -82,14 +82,14 @@ const MyBookings = () => {
 
     const fetchBookings = () => {
         if (user) {
-            // ✅ बदल: uid मिळवण्यासाठी user_id किंवा id दोन्ही चेक करा
+            // ✅ फिक्स: uid मिळवण्यासाठी user_id किंवा id दोन्ही चेक करणे
             const uid = user.user_id || user.id || 1; 
             setLoading(true);
             
-            // ✅ बदल: URL मध्ये 'api' आहे आणि 'uid' डायनॅमिक आहे
+            // ✅ फिक्स: axios.get आणि '(' मध्ये स्पेस काढली आणि बॅकटिक्स वापरले
             axios.get(`${API_BASE_URL}/api/my-bookings/${uid}`)
                 .then(res => {
-                    console.log("Bookings Data:", res.data); 
+                    console.log("Bookings Data Received:", res.data); 
                     setBookings(res.data);
                     setLoading(false);
                 })
