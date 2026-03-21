@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios"; // Axios import करा
+import axios from "axios"; 
 import "../styles/PaymentSelection.css";
 
 const PaymentSelection = () => {
@@ -12,6 +12,11 @@ const PaymentSelection = () => {
   const [selectedBank, setSelectedBank] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // ✅ १. डायनॅमिक URL लॉजिक (लोकल आणि रेंडर दोन्हीसाठी)
+  const API_BASE_URL = window.location.hostname === "localhost" 
+    ? "http://localhost:5001" 
+    : "https://bus-booking-backend-zd3f.onrender.com";
+
   // Booking details मधून सर्व डेटा व्यवस्थित बाहेर काढणे
   const bookingData = location.state?.bookingDetails || location.state || {}; 
   const { 
@@ -21,12 +26,12 @@ const PaymentSelection = () => {
     to, 
     selectedSeats, 
     travelDate,
-    busId, // हे कधी कधी रिकामे असू शकते
-    bus_id, // हे सुद्धा चेक करूया
+    busId, 
+    bus_id, 
     fullName,
     email,
     mobile,
-    passengers // <--- BookingSummary कडून आलेला प्रवाशांचा डेटा
+    passengers 
   } = bookingData;
 
   const user = JSON.parse(localStorage.getItem("user"));
@@ -55,7 +60,6 @@ const PaymentSelection = () => {
   const t = translations[lang] || translations.en;
   const banks = ["State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank", "Kotak Mahindra Bank", "Bank of Baroda"];
 
-  // --- मुख्य बदल: डेटाबेसमध्ये बुकिंग सेव्ह करणे आणि प्रवाशांची माहिती पुढे पाठवणे ---
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
     if (!activeMethod && !selectedBank) {
@@ -66,7 +70,6 @@ const PaymentSelection = () => {
     setIsProcessing(true);
 
     try {
-        // बॅकएंडला पाठवण्यासाठी डेटा तयार करणे
         const payload = {
             bookingDetails: {
                 bus_id: bus_id || busId || 1, 
@@ -76,17 +79,15 @@ const PaymentSelection = () => {
                 passenger_mobile: mobile || "0000000000",
                 seats: selectedSeats || [],
                 total_amount: totalAmount,
-                // Razorpay नसल्यामुळे आपण डमी आयडी पाठवत आहोत
                 razorpayOrderId: "DIRECT_ORD_" + Date.now(),
                 razorpayPaymentId: "DIRECT_PAY_" + Date.now()
             }
         };
 
-        // १. बॅकएंडला विनंती पाठवणे (डेटाबेस एन्ट्रीसाठी)
-        const response = await axios.post("http://localhost:5001/api/verify-payment", payload);
+        // ✅ २. इथे API_BASE_URL वापरला आहे
+        const response = await axios.post(`${API_BASE_URL}/api/verify-payment`, payload);
 
         if (response.data.success) {
-            // २. जर बॅकएंडने सेव्ह केले, तरच पुढे जा
             setTimeout(() => {
                 setIsProcessing(false);
                 navigate("/ticket-success", { 
@@ -98,7 +99,7 @@ const PaymentSelection = () => {
                           selectedSeats, 
                           totalAmount, 
                           travelDate, 
-                          passengers: passengers, // <--- हा बदल महत्त्वाचा आहे, यामुळे नाव दिसेल
+                          passengers: passengers,
                           pnr: response.data.pnr 
                         } 
                     } 
