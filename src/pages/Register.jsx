@@ -9,7 +9,7 @@ const Register = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    // ✅ Render ची लिंक आणि Localhost दोन्ही मॅनेज करण्यासाठी लॉजिक
+    // ✅ Proxy वापरत असल्यामुळे किंवा डायनॅमिक URL साठी लॉजिक
     const API_BASE_URL = window.location.hostname === "localhost" 
         ? "http://localhost:5001" 
         : "https://bus-reservation-system-backend-j.onrender.com";
@@ -17,16 +17,37 @@ const Register = () => {
     const handleRegister = async (e) => {
         e.preventDefault();
 
-        // मोबाईल नंबर व्हॅलिडेशन (१० अंकी)
+        // १. बेसिक ट्रिमिंग (रिकामी जागा काढणे)
+        const cleanName = formData.name.trim();
+        const cleanEmail = formData.email.trim();
+
+        // २. ईमेल व्हॅलिडेशन (Regex)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(cleanEmail)) {
+            alert(t('invalid_email') || "कृपया वैध ईमेल आयडी टाका.");
+            return;
+        }
+
+        // ३. मोबाईल नंबर व्हॅलिडेशन (१० अंकी)
         if (formData.mobile.length !== 10) {
             alert(t('invalid_mobile') || "कृपया १० अंकी मोबाईल नंबर टाका.");
             return;
         }
 
+        // ४. पासवर्ड स्ट्रेंथ व्हॅलिडेशन (किमान ६ अक्षरे)
+        if (formData.password.length < 6) {
+            alert(t('weak_password') || "पासवर्ड किमान ६ अक्षरांचा असावा.");
+            return;
+        }
+
         setLoading(true);
         try {
-            // ✅ API ला कॉल करताना आपण आता डायनॅमिक URL वापरत आहोत
-            const res = await axios.post(`${API_BASE_URL}/api/register`, formData);
+            // ✅ API कॉल
+            const res = await axios.post(`${API_BASE_URL}/api/register`, {
+                ...formData,
+                name: cleanName,
+                email: cleanEmail
+            });
             
             if (res.data.success) {
                 alert(t('register_success_alert') || "नोंदणी यशस्वी! आता लॉगिन करा.");
@@ -35,7 +56,7 @@ const Register = () => {
         } catch (err) {
             console.error("Registration Error:", err);
             
-            // ✅ बॅकएंडवरून येणारा अचूक एरर मेसेज युजरला दाखवणे
+            // ✅ बॅकएंडकडून येणारा एरर मेसेज दाखवणे
             const serverMsg = err.response?.data?.message;
             let errorMsg = t('registration_failed') || "नोंदणी अयशस्वी!";
 
@@ -43,6 +64,8 @@ const Register = () => {
                 errorMsg = t('email_exists_alert') || "हा ईमेल आधीच नोंदणीकृत आहे!";
             } else if (err.response?.data?.error) {
                 errorMsg = `Error: ${err.response.data.error}`;
+            } else if (err.code === "ERR_NETWORK") {
+                errorMsg = "सर्व्हरशी संपर्क होऊ शकला नाही. कृपया इंटरनेट तपासा.";
             }
 
             alert(errorMsg);
@@ -58,7 +81,6 @@ const Register = () => {
     return (
         <div style={{ maxWidth: "450px", margin: "60px auto", padding: "30px", border: "1px solid #e2e8f0", borderRadius: "12px", boxShadow: "0 10px 25px rgba(0,0,0,0.1)", backgroundColor: "#fff" }}>
             
-            {/* भाषेचा ड्रॉपडाऊन */}
             <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "15px" }}>
                 <select 
                     onChange={changeLanguage} 
@@ -94,7 +116,7 @@ const Register = () => {
                 
                 <input 
                     type="password" 
-                    placeholder={t('set_password') || "पासवर्ड सेट करा"} 
+                    placeholder={t('set_password') || "पासवर्ड सेट करा (किमान ६ अक्षरे)"} 
                     required 
                     value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})} 
@@ -106,7 +128,12 @@ const Register = () => {
                     placeholder={t('mobile_number') || "मोबाईल नंबर"} 
                     required 
                     value={formData.mobile}
-                    onChange={(e) => setFormData({...formData, mobile: e.target.value})} 
+                    onChange={(e) => {
+                        // फक्त १० अंकांपर्यंतच इनपुट घेऊ देणे
+                        if (e.target.value.length <= 10) {
+                            setFormData({...formData, mobile: e.target.value})
+                        }
+                    }} 
                     style={{ padding: "12px", borderRadius: "6px", border: "1px solid #cbd5e0" }} 
                 />
                 
@@ -122,7 +149,8 @@ const Register = () => {
                         cursor: loading ? "not-allowed" : "pointer", 
                         fontWeight: "bold", 
                         fontSize: "16px", 
-                        marginTop: "10px" 
+                        marginTop: "10px",
+                        transition: "0.3s"
                     }}
                 >
                     {loading ? (t('processing') || "प्रक्रिया सुरू आहे...") : t('register')}
