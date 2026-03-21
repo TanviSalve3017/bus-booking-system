@@ -5,11 +5,11 @@ import { useTranslation } from "react-i18next";
 
 const Register = () => {
     const { t, i18n } = useTranslation();
-    const [formData, setFormData] = useState({ name: "", email: "", password: "", mobile: "" });
+    const [formData, setFormData] = useState({ name: "", email: "", password: "", confirmPassword: "", mobile: "" }); // confirmPassword ॲड केले
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    // ✅ Proxy वापरत असल्यामुळे किंवा डायनॅमिक URL साठी लॉजिक
+    // ✅ Render ची लिंक आणि Localhost मॅनेजमेंट
     const API_BASE_URL = window.location.hostname === "localhost" 
         ? "http://localhost:5001" 
         : "https://bus-reservation-system-backend-j.onrender.com";
@@ -17,11 +17,11 @@ const Register = () => {
     const handleRegister = async (e) => {
         e.preventDefault();
 
-        // १. बेसिक ट्रिमिंग (रिकामी जागा काढणे)
+        // १. बेसिक ट्रिमिंग
         const cleanName = formData.name.trim();
         const cleanEmail = formData.email.trim();
 
-        // २. ईमेल व्हॅलिडेशन (Regex)
+        // २. ईमेल व्हॅलिडेशन
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(cleanEmail)) {
             alert(t('invalid_email') || "कृपया वैध ईमेल आयडी टाका.");
@@ -34,19 +34,26 @@ const Register = () => {
             return;
         }
 
-        // ४. पासवर्ड स्ट्रेंथ व्हॅलिडेशन (किमान ६ अक्षरे)
+        // ४. पासवर्ड स्ट्रेंथ व्हॅलिडेशन
         if (formData.password.length < 6) {
             alert(t('weak_password') || "पासवर्ड किमान ६ अक्षरांचा असावा.");
             return;
         }
 
+        // ५. ✅ नवीन लॉजिक: Confirm Password मॅच होणे गरजेचे आहे
+        if (formData.password !== formData.confirmPassword) {
+            alert(t('password_mismatch') || "पासवर्ड मॅच होत नाहीत!");
+            return;
+        }
+
         setLoading(true);
         try {
-            // ✅ API कॉल
+            // ✅ API ला कॉल
             const res = await axios.post(`${API_BASE_URL}/api/register`, {
-                ...formData,
                 name: cleanName,
-                email: cleanEmail
+                email: cleanEmail,
+                password: formData.password,
+                mobile: formData.mobile
             });
             
             if (res.data.success) {
@@ -56,7 +63,6 @@ const Register = () => {
         } catch (err) {
             console.error("Registration Error:", err);
             
-            // ✅ बॅकएंडकडून येणारा एरर मेसेज दाखवणे
             const serverMsg = err.response?.data?.message;
             let errorMsg = t('registration_failed') || "नोंदणी अयशस्वी!";
 
@@ -65,7 +71,7 @@ const Register = () => {
             } else if (err.response?.data?.error) {
                 errorMsg = `Error: ${err.response.data.error}`;
             } else if (err.code === "ERR_NETWORK") {
-                errorMsg = "सर्व्हरशी संपर्क होऊ शकला नाही. कृपया इंटरनेट तपासा.";
+                errorMsg = "सर्व्हरशी संपर्क होऊ शकला नाही. कृपया बॅकएंड चालू असल्याची खात्री करा.";
             }
 
             alert(errorMsg);
@@ -116,20 +122,29 @@ const Register = () => {
                 
                 <input 
                     type="password" 
-                    placeholder={t('set_password') || "पासवर्ड सेट करा (किमान ६ अक्षरे)"} 
+                    placeholder={t('set_password') || "पासवर्ड (किमान ६ अक्षरे)"} 
                     required 
                     value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})} 
                     style={{ padding: "12px", borderRadius: "6px", border: "1px solid #cbd5e0" }} 
                 />
+
+                {/* ✅ नवीन Confirm Password इनपुट */}
+                <input 
+                    type="password" 
+                    placeholder={t('confirm_password') || "पासवर्ड पुन्हा टाका"} 
+                    required 
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})} 
+                    style={{ padding: "12px", borderRadius: "6px", border: "1px solid #cbd5e0" }} 
+                />
                 
                 <input 
                     type="number" 
-                    placeholder={t('mobile_number') || "मोबाईल नंबर"} 
+                    placeholder={t('mobile_number') || "मोबाईल नंबर (१० अंकी)"} 
                     required 
                     value={formData.mobile}
                     onChange={(e) => {
-                        // फक्त १० अंकांपर्यंतच इनपुट घेऊ देणे
                         if (e.target.value.length <= 10) {
                             setFormData({...formData, mobile: e.target.value})
                         }
