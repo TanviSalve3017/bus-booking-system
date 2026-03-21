@@ -82,11 +82,9 @@ const MyBookings = () => {
 
     const fetchBookings = () => {
         if (user) {
-            // ✅ फिक्स: uid मिळवण्यासाठी user_id किंवा id दोन्ही चेक करणे
             const uid = user.user_id || user.id || 1; 
             setLoading(true);
             
-            // ✅ फिक्स: axios.get आणि '(' मध्ये स्पेस काढली आणि बॅकटिक्स वापरले
             axios.get(`${API_BASE_URL}/api/my-bookings/${uid}`)
                 .then(res => {
                     console.log("Bookings Data Received:", res.data); 
@@ -111,6 +109,7 @@ const MyBookings = () => {
             axios.put(`${API_BASE_URL}/api/cancel-ticket/${pnr}`)
                 .then(res => {
                     if (res.data.success) {
+                        // ✅ बॅकएंडकडून येणारा मेसेज (रिफंड रकमेसह) अलर्टमध्ये दाखवला जाईल
                         alert(res.data.message); 
                         fetchBookings(); 
                     }
