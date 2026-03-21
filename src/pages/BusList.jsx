@@ -33,10 +33,12 @@ const BusList = () => {
     );
   };
 
+  // ✅ १. fetchBuses फंक्शन - हे आता फक्त आवश्यक असेल तेव्हाच कॉल होईल
   const fetchBuses = useCallback(async () => {
+    if (!from || !to) return; // जर ठिकाण नसेल तर कॉल करू नका
+    
     setLoading(true);
     try {
-      // ✅ २. इथे 'api' वापरला आहे, जो थेट तुझ्या Render बॅकएंडला कॉल करेल
       const res = await api.get("/api/buses", {
         params: { 
           from: from.trim().toLowerCase(), 
@@ -47,16 +49,20 @@ const BusList = () => {
           amenities: selectedAmenities.length > 0 ? selectedAmenities.join(',') : undefined 
         }
       });
+      
+      // ✅ २. थेट नवीन डेटा सेट करा, ज्यामुळे ड्युप्लिकेट होणार नाहीत
       setBuses(res.data);
     } catch (e) { 
       console.error("Fetch error details:", e.response?.data || e.message); 
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [from, to, busType, priceRange, operator, selectedAmenities]);
 
+  // ✅ ३. फक्त From आणि To बदलल्यावरच सुरुवातीला डेटा आणा
   useEffect(() => { 
-    if (from && to) fetchBuses(); 
-  }, [from, to, fetchBuses]); 
+    fetchBuses(); 
+  }, [from, to]); 
 
   const handleSelectSeat = async (busId) => {
     if (selectedBusId === busId) {
@@ -65,7 +71,6 @@ const BusList = () => {
       return;
     }
     try {
-      // ✅ ३. सीट्स मिळवण्यासाठी पण 'api' वापरला
       const res = await api.get(`/api/seats/${busId}`);
       setBusSeats(res.data);
       setSelectedBusId(busId);
@@ -126,7 +131,7 @@ const BusList = () => {
                   </label>
                 ))}
               </div>
-              <span onClick={() => setBusType("")} className="clear-text">Clear All</span>
+              <span onClick={() => setBusType("")} className="clear-text" style={{cursor: "pointer", color: "#d84e55"}}>Clear All</span>
             </div>
 
             <div className="filter-section">
@@ -163,6 +168,7 @@ const BusList = () => {
                 <option value="Chintamani Travels">Chintamani Travels</option>
               </select>
             </div>
+            {/* ✅ Apply Filters बटण दाबल्यावरच नवीन डेटा येईल */}
             <button className="apply-btn-red" onClick={fetchBuses}>Apply Filters</button>
           </aside>
 
@@ -170,8 +176,9 @@ const BusList = () => {
             <h2 className="route-title">{from.toUpperCase()} to {to.toUpperCase()}</h2>
             {loading ? ( <p className="status-msg">Finding buses...</p> ) : (
               buses.length > 0 ? (
-                buses.map(bus => (
-                  <div key={bus.bus_id} className="modern-bus-card-wrapper">
+                // ✅ ४. Key म्हणून bus.bus_id वापरला आहे जेणेकरून ड्युप्लिकेट रेंडर होणार नाहीत
+                buses.map((bus, index) => (
+                  <div key={bus.bus_id || index} className="modern-bus-card-wrapper">
                     <div className="bus-card-main">
                       <div className="bus-info-left">
                         <h2 className="operator-name">{bus.operator_name}</h2>
@@ -179,7 +186,7 @@ const BusList = () => {
                         <p className="bus-type-text">{bus.bus_type}</p>
                         <div className="timeline-row">
                           <div className="time-box">
-                            <span className="time-main">{bus.departure_time.slice(0, 5)}</span>
+                            <span className="time-main">{bus.departure_time?.slice(0, 5)}</span>
                             <span className="city-sub">{from}</span>
                           </div>
                           <div className="arrow-divider">
@@ -187,7 +194,7 @@ const BusList = () => {
                             <small>Duration</small>
                           </div>
                           <div className="time-box">
-                            <span className="time-main">{bus.arrival_time.slice(0, 5)}</span>
+                            <span className="time-main">{bus.arrival_time?.slice(0, 5)}</span>
                             <span className="city-sub">{to}</span>
                           </div>
                         </div>
