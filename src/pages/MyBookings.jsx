@@ -66,12 +66,23 @@ const MyBookings = () => {
 
     const t = translations[lang];
 
+    // ✅ तारीख फिक्स करण्यासाठी सुधारित फंक्शन
     const formatDate = (dateStr) => {
         if (!dateStr) return "";
-        if (dateStr.includes("-") && !dateStr.includes("T")) {
-            const [year, month, day] = dateStr.split("-");
-            return `${day}/${month}/${year}`;
+        
+        // जर तारीख ISO String स्वरूपात असेल (उदा. 2026-03-24T00:00:00.000Z)
+        // तर फक्त तारीख (2026-03-24) वेगळी काढूया
+        const cleanDate = dateStr.includes("T") ? dateStr.split("T")[0] : dateStr;
+
+        if (cleanDate.includes("-")) {
+            const parts = cleanDate.split("-");
+            // जर फॉरमॅट YYYY-MM-DD असेल तरच तो पलटी करून DD/MM/YYYY करू
+            if (parts[0].length === 4) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
         }
+        
+        // जर वरील लॉजिक चाललं नाही तर फॉलबॅक म्हणून जुनं लॉजिक
         const date = new Date(dateStr);
         if (isNaN(date.getTime())) return dateStr;
         const day = String(date.getDate()).padStart(2, '0');
@@ -109,7 +120,6 @@ const MyBookings = () => {
             axios.put(`${API_BASE_URL}/api/cancel-ticket/${pnr}`)
                 .then(res => {
                     if (res.data.success) {
-                        // ✅ बॅकएंडकडून येणारा मेसेज (रिफंड रकमेसह) अलर्टमध्ये दाखवला जाईल
                         alert(res.data.message); 
                         fetchBookings(); 
                     }
