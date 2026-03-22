@@ -6,20 +6,43 @@ const Home = () => {
   const navigate = useNavigate();
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
-  // आजची तारीख डिफॉल्ट सेट केली आहे जेणेकरून पॉपुलर रूट्सवर क्लिक केल्यावर एरर येणार नाही
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  
+  // ✅ १. तारीख रिकामी राहू नये म्हणून 'today' व्हेरिएबल तयार केले
+  const today = new Date().toISOString().split('T')[0];
+  
+  // ✅ २. डिफॉल्ट स्टेटमध्ये आजची तारीख दिली आहे
+  const [date, setDate] = useState(today);
 
   const handleSearch = () => {
-    if (!from || !to || !date) {
+    // ✅ ३. व्हॅलिडेशन: जर युजरने तारीख चुकून डिलीट केली तर ती पुन्हा आजची तारीख सेट होईल
+    const searchDate = date || today;
+
+    if (!from || !to) {
       alert("Please fill all fields");
       return;
     }
-    navigate(`/search?from=${from}&to=${to}&date=${date}`);
+
+    // ✅ ४. URL बरोबर जावी आणि स्पेसमुळे एरर येऊ नये म्हणून trim() आणि encodeURIComponent वापरले आहे
+    const query = new URLSearchParams({
+      from: from.trim().toLowerCase(),
+      to: to.trim().toLowerCase(),
+      date: searchDate
+    }).toString();
+
+    navigate(`/search?${query}`);
   };
 
   // पॉपुलर रूट्ससाठी कॉमन फंक्शन
   const handleRouteSearch = (source, destination) => {
-    navigate(`/search?from=${source}&to=${destination}&date=${date}`);
+    const searchDate = date || today;
+    
+    const query = new URLSearchParams({
+      from: source.toLowerCase(),
+      to: destination.toLowerCase(),
+      date: searchDate
+    }).toString();
+
+    navigate(`/search?${query}`);
   };
 
   return (
@@ -32,15 +55,31 @@ const Home = () => {
         <div className="search-box">
           <div className="input-group">
             <label>From</label>
-            <input type="text" placeholder="Select Origin" value={from} onChange={(e) => setFrom(e.target.value)} />
+            <input 
+              type="text" 
+              placeholder="Select Origin" 
+              value={from} 
+              onChange={(e) => setFrom(e.target.value)} 
+            />
           </div>
           <div className="input-group">
             <label>To</label>
-            <input type="text" placeholder="Select Destination" value={to} onChange={(e) => setTo(e.target.value)} />
+            <input 
+              type="text" 
+              placeholder="Select Destination" 
+              value={to} 
+              onChange={(e) => setTo(e.target.value)} 
+            />
           </div>
           <div className="input-group">
             <label>Journey Date</label>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            <input 
+              type="date" 
+              value={date} 
+              // ✅ ५. मिनिमम तारीख आजची ठेवली आहे जेणेकरून मागील तारखेचे बुकिंग होणार नाही
+              min={today}
+              onChange={(e) => setDate(e.target.value)} 
+            />
           </div>
           <button className="search-btn" onClick={handleSearch}>Search</button>
         </div>
@@ -70,11 +109,10 @@ const Home = () => {
         </div>
       </div>
 
-      {/* POPULAR ROUTES - येथे दुरुस्ती केली आहे */}
+      {/* POPULAR ROUTES */}
       <div className="routes">
         <h2 className="section-title">Popular Routes</h2>
         <div className="route-list">
-          {/* Mumbai to Pune क्लिक केल्यावर आता From Mumbai आणि To Pune च जाईल */}
           <div onClick={() => handleRouteSearch("mumbai", "pune")} className="route-item">
             Mumbai to Pune <span>›</span>
           </div>
