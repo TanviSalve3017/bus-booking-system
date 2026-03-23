@@ -7,16 +7,12 @@ const PaymentPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // दुरुस्ती: BookingSummary कडून डेटा थेट state मध्ये येतोय, bookingDetails मध्ये नाही
-  // म्हणून आपण दोन्ही चेक करूया जेणेकरून कोड फाटणार नाही
   const bookingDetails = location.state?.bookingDetails || location.state || null;
 
-  // --- DEBUGGING ---
   useEffect(() => {
     console.log("Received Booking Details in PaymentPage:", bookingDetails);
   }, [bookingDetails]);
 
-  // १. किंमत काढण्याचे सर्व शक्य मार्ग
   const getAmount = () => {
     if (!bookingDetails) return 0;
     
@@ -32,10 +28,8 @@ const PaymentPage = () => {
 
   const displayAmount = getAmount();
 
-  // २. लॉगिन असलेल्या युजरची माहिती मिळवणे
   const loggedInUser = JSON.parse(localStorage.getItem("user"));
 
-  // ३. पॅसेंजर फॉर्म स्टेट
   const [contactInfo, setContactInfo] = useState({
     fullName: loggedInUser ? loggedInUser.name : "",
     email: loggedInUser ? loggedInUser.email : "",
@@ -46,7 +40,6 @@ const PaymentPage = () => {
     setContactInfo({ ...contactInfo, [e.target.name]: e.target.value });
   };
 
-  // डेटा नसेल तर एरर मेसेज दाखवा
   if (!bookingDetails) {
     return (
       <div className="payment-main-container">
@@ -58,8 +51,7 @@ const PaymentPage = () => {
     );
   }
 
-  // डेटा मधून आवश्यक गोष्टी काढणे (selectedSeats पण चेक केले आहे)
-  const { busName, seats, selectedSeats, busId } = bookingDetails;
+  const { busName, seats, selectedSeats, busId, travelDate } = bookingDetails;
   const finalSeats = seats || selectedSeats;
 
   const handlePayment = async () => {
@@ -68,15 +60,34 @@ const PaymentPage = () => {
       return;
     }
 
-    // तुझ्या मागणीनुसार: इथून आपण आता PaymentSelection (/payment-selection) कडे जाणार आहोत
-    // आपण डेटा पुढे पास करत आहोत
+    // 🔥 CRITICAL VALIDATION
+    if (!busId) {
+      alert("Bus ID missing!");
+      console.error("❌ busId missing", bookingDetails);
+      return;
+    }
+
+    if (!finalSeats || finalSeats.length === 0) {
+      alert("No seats selected!");
+      console.error("❌ seats missing", bookingDetails);
+      return;
+    }
+
+    // 🔥 FINAL CLEAN OBJECT (backend compatible)
+    const finalBookingData = {
+      busId: busId,
+      seats: finalSeats,
+      fullName: contactInfo.fullName,
+      email: contactInfo.email,
+      mobile: contactInfo.mobile,
+      totalAmount: displayAmount,
+      travelDate: travelDate || bookingDetails.travel_date || null
+    };
+
+    console.log("🚀 FINAL DATA SENT TO NEXT PAGE:", finalBookingData);
+
     navigate("/payment-selection", { 
-      state: { 
-        ...bookingDetails, 
-        ...contactInfo,
-        totalAmount: displayAmount,
-        seats: finalSeats 
-      } 
+      state: finalBookingData   // 🔥 CLEAN STRUCTURE
     });
   };
 
