@@ -60,89 +60,61 @@ const PaymentSelection = () => {
   const t = translations[lang] || translations.en;
   const banks = ["State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank", "Kotak Mahindra Bank", "Bank of Baroda"];
 
- const handlePaymentSubmit = async (e) => {
-  e.preventDefault();
-  if (!activeMethod && !selectedBank) {
-      alert(lang === "mr" ? "कृपया एक पेमेंट पद्धत निवडा!" : "Please select a payment method!");
-      return;
-  }
+  const handlePaymentSubmit = async (e) => {
+    e.preventDefault();
+    if (!activeMethod && !selectedBank) {
+        alert(lang === "mr" ? "कृपया एक पेमेंट पद्धत निवडा!" : "Please select a payment method!");
+        return;
+    }
 
-  // 🔥 NEW: Passenger validation
-  if (!passengers || passengers.length === 0) {
-      alert("Passenger data missing!");
-      return;
-  }
+    setIsProcessing(true);
 
-  for (let p of passengers) {
-      if (!p.name || !p.age) {
-          alert("Fill all passenger details!");
-          return;
-      }
-  }
+    try {
+        const payload = {
+            bookingDetails: {
+                bus_id: bus_id || busId || 1, 
+                user_id: user?.user_id || user?.id || 1,
+                passenger_name: fullName || "Guest User",
+                passenger_email: email || "guest@test.com",
+                passenger_mobile: mobile || "0000000000",
+                seats: selectedSeats || [],
+                total_amount: totalAmount,
+                razorpayOrderId: "DIRECT_ORD_" + Date.now(),
+                razorpayPaymentId: "DIRECT_PAY_" + Date.now()
+            }
+        };
 
-  setIsProcessing(true);
+        // ✅ २. इथे API_BASE_URL वापरला आहे
+        const response = await axios.post(`${API_BASE_URL}/api/verify-payment`, payload);
 
-  try {
+        if (response.data.success) {
+            setTimeout(() => {
+                setIsProcessing(false);
+                navigate("/ticket-success", { 
+                    state: { 
+                        bookingDetails: { 
+                          from, 
+                          to, 
+                          busName, 
+                          selectedSeats, 
+                          totalAmount, 
+                          travelDate, 
+                          passengers: passengers,
+                          pnr: response.data.pnr 
+                        } 
+                    } 
+                });
+            }, 2000);
+        } else {
+            throw new Error("Database insertion failed");
+        }
 
-      // 🔥🔥 NEW LOGIC (IMPORTANT)
-      const passengerNames = passengers.map(p => p.name).join(", ");
-      const passengerAges = passengers.map(p => p.age).join(", ");
-
-      const payload = {
-  bookingDetails: {
-      bus_id: bus_id || busId || 1,
-      user_id: user?.user_id || user?.id || 1,
-
-      // 🔥 UPDATED (multi passenger support)
-      passenger_name: passengerNames,
-      passenger_email: email || "guest@test.com",
-      passenger_mobile: mobile || "0000000000",
-
-      seats: selectedSeats || bookingData.seats || [],
-      total_amount: totalAmount || bookingData.totalAmount || 0,
-
-      travel_date: travelDate || bookingData.travelDate || new Date().toISOString().split("T")[0],
-
-      // 🔥 UPDATED
-      passenger_age: passengerAges,
-
-      razorpayOrderId: "DIRECT_ORD_" + Date.now(),
-      razorpayPaymentId: "DIRECT_PAY_" + Date.now()
-  }
-};
-
-console.log("FINAL PAYLOAD:", payload);
-
-      const response = await axios.post(`${API_BASE_URL}/api/verify-payment`, payload);
-
-      if (response.data.success) {
-          setTimeout(() => {
-              setIsProcessing(false);
-              navigate("/ticket-success", { 
-                  state: { 
-                      bookingDetails: { 
-                        from, 
-                        to, 
-                        busName, 
-                        selectedSeats, 
-                        totalAmount, 
-                        travelDate, 
-                        passengers: passengers, // already correct
-                        pnr: response.data.pnr 
-                      } 
-                  } 
-              });
-          }, 2000);
-      } else {
-          throw new Error("Database insertion failed");
-      }
-
-  } catch (error) {
-      console.error("Booking Error:", error);
-      setIsProcessing(false);
-      alert("तांत्रिक अडचण! डेटाबेसमध्ये बुकिंग सेव्ह होऊ शकले नाही.");
-  }
-};
+    } catch (error) {
+        console.error("Booking Error:", error);
+        setIsProcessing(false);
+        alert("तांत्रिक अडचण! डेटाबेसमध्ये बुकिंग सेव्ह होऊ शकले नाही.");
+    }
+  };
 
   return (
     <div className="real-pg-wrapper">

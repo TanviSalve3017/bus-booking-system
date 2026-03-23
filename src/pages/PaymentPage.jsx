@@ -7,12 +7,16 @@ const PaymentPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // दुरुस्ती: BookingSummary कडून डेटा थेट state मध्ये येतोय, bookingDetails मध्ये नाही
+  // म्हणून आपण दोन्ही चेक करूया जेणेकरून कोड फाटणार नाही
   const bookingDetails = location.state?.bookingDetails || location.state || null;
 
+  // --- DEBUGGING ---
   useEffect(() => {
     console.log("Received Booking Details in PaymentPage:", bookingDetails);
   }, [bookingDetails]);
 
+  // १. किंमत काढण्याचे सर्व शक्य मार्ग
   const getAmount = () => {
     if (!bookingDetails) return 0;
     
@@ -28,8 +32,10 @@ const PaymentPage = () => {
 
   const displayAmount = getAmount();
 
+  // २. लॉगिन असलेल्या युजरची माहिती मिळवणे
   const loggedInUser = JSON.parse(localStorage.getItem("user"));
 
+  // ३. पॅसेंजर फॉर्म स्टेट
   const [contactInfo, setContactInfo] = useState({
     fullName: loggedInUser ? loggedInUser.name : "",
     email: loggedInUser ? loggedInUser.email : "",
@@ -40,34 +46,7 @@ const PaymentPage = () => {
     setContactInfo({ ...contactInfo, [e.target.name]: e.target.value });
   };
 
-  // 🔥 Passenger Logic
-  const { busName, seats, selectedSeats, busId, travelDate, from, to } = bookingDetails || {};
-  const finalSeats = seats || selectedSeats || [];
-
-  const [passengers, setPassengers] = useState([]);
-
-  // ✅ FIX: only update when seats actually change
-  useEffect(() => {
-    if (finalSeats && finalSeats.length > 0) {
-      setPassengers(prev => {
-        if (prev.length === finalSeats.length) return prev; // 🔥 prevent reset
-        return finalSeats.map(seat => ({
-          name: "",
-          age: "",
-          gender: "Male",
-          seat: seat
-        }));
-      });
-    }
-  }, [finalSeats]);
-
-  // ✅ CLEAN UPDATE FUNCTION
-  const updatePassenger = (index, field, value) => {
-    const updated = [...passengers];
-    updated[index][field] = value;
-    setPassengers(updated);
-  };
-
+  // डेटा नसेल तर एरर मेसेज दाखवा
   if (!bookingDetails) {
     return (
       <div className="payment-main-container">
@@ -79,58 +58,25 @@ const PaymentPage = () => {
     );
   }
 
+  // डेटा मधून आवश्यक गोष्टी काढणे (selectedSeats पण चेक केले आहे)
+  const { busName, seats, selectedSeats, busId } = bookingDetails;
+  const finalSeats = seats || selectedSeats;
+
   const handlePayment = async () => {
     if (!contactInfo.fullName || !contactInfo.email || !contactInfo.mobile) {
       alert("कृपया सर्व माहिती भरा!");
       return;
     }
 
-    if (!busId) {
-      alert("Bus ID missing!");
-      console.error("❌ busId missing", bookingDetails);
-      return;
-    }
-
-    if (!finalSeats || finalSeats.length === 0) {
-      alert("No seats selected!");
-      console.error("❌ seats missing", bookingDetails);
-      return;
-    }
-
-    // 🔥 STRONG VALIDATION
-    for (let i = 0; i < passengers.length; i++) {
-      const p = passengers[i];
-
-      if (!p.name || !p.age) {
-        alert(`Passenger ${i + 1} details incomplete`);
-        return;
-      }
-
-      if (p.age < 1 || p.age > 100) {
-        alert(`Invalid age for Passenger ${i + 1}`);
-        return;
-      }
-    }
-
-    const finalBookingData = {
-      busId: busId,
-      seats: finalSeats,
-      fullName: contactInfo.fullName,
-      email: contactInfo.email,
-      mobile: contactInfo.mobile,
-      totalAmount: displayAmount,
-      travelDate: travelDate || bookingDetails.travel_date || null,
-
-      passengers: passengers,
-      from: from || "N/A",
-      to: to || "N/A",
-      busName: busName || "N/A"
-    };
-
-    console.log("🚀 FINAL DATA SENT TO NEXT PAGE:", finalBookingData);
-
+    // तुझ्या मागणीनुसार: इथून आपण आता PaymentSelection (/payment-selection) कडे जाणार आहोत
+    // आपण डेटा पुढे पास करत आहोत
     navigate("/payment-selection", { 
-      state: finalBookingData
+      state: { 
+        ...bookingDetails, 
+        ...contactInfo,
+        totalAmount: displayAmount,
+        seats: finalSeats 
+      } 
     });
   };
 
@@ -143,10 +89,6 @@ const PaymentPage = () => {
           <div className="summary-row">
             <span>Bus:</span>
             <strong>{busName || "N/A"}</strong>
-          </div>
-          <div className="summary-row">
-            <span>Route:</span>
-            <strong>{from || "N/A"} → {to || "N/A"}</strong>
           </div>
           <div className="summary-row">
             <span>Seats:</span>
@@ -171,39 +113,6 @@ const PaymentPage = () => {
             <label>Mobile Number</label>
             <input type="text" name="mobile" value={contactInfo.mobile} onChange={handleChange} required />
           </div>
-        </div>
-
-        {/* 🔥 Passenger UI */}
-        <div className="passenger-section">
-          <h3>Passenger Details</h3>
-
-          {passengers.map((p, index) => (
-            <div key={index} style={{ marginBottom: "15px" }}>
-              <p><strong>Seat: {p.seat}</strong></p>
-
-              <input
-                type="text"
-                placeholder="Name"
-                value={p.name}
-                onChange={(e) => updatePassenger(index, "name", e.target.value)}
-              />
-
-              <input
-                type="number"
-                placeholder="Age"
-                value={p.age}
-                onChange={(e) => updatePassenger(index, "age", e.target.value)}
-              />
-
-              <select
-                value={p.gender}
-                onChange={(e) => updatePassenger(index, "gender", e.target.value)}
-              >
-                <option>Male</option>
-                <option>Female</option>
-              </select>
-            </div>
-          ))}
         </div>
 
         <button className="pay-now-btn" onClick={handlePayment}>
