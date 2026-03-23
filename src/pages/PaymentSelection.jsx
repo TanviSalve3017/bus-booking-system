@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios"; 
 import "../styles/PaymentSelection.css";
@@ -11,6 +11,11 @@ const PaymentSelection = () => {
   const [activeMethod, setActiveMethod] = useState(""); 
   const [selectedBank, setSelectedBank] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // 🔥 NEW: force re-render check
+  useEffect(() => {
+    console.log("📦 PaymentSelection Data:", location.state);
+  }, [location.state]);
 
   const API_BASE_URL = window.location.hostname === "localhost" 
     ? "http://localhost:5001" 
@@ -33,108 +38,137 @@ const PaymentSelection = () => {
     passengers 
   } = bookingData;
 
+  // 🔥 SAFETY FALLBACKS (CRITICAL)
+  const safeSeats = selectedSeats || bookingData.seats || [];
+  const safeAmount = totalAmount || bookingData.totalAmount || 0;
+  const safePassengers = passengers || [];
+
   const user = JSON.parse(localStorage.getItem("user"));
 
   const translations = {
     en: {
-      route: `${from || "Route"} → ${to || ""}`, method: "Choose Payment Method", upi: "UPI", card: "Debit / Credit Card",
-      cardNum: "Card Number", expiry: "Expiry Date", cvv: "CVV", netbanking: "Net Banking",
-      wallet: "Wallet", payBtn: `PROCEED TO PAY ₹${totalAmount || 0}`, date: "Travel Date", bus: "Bus", seat: "Seat", fare: "Total Fare",
-      upiPlaceholder: "Enter UPI ID (e.g. user@abc)", processing: "Processing Payment... Please wait"
+      route: `${from || "Route"} → ${to || ""}`, 
+      method: "Choose Payment Method",
+      upi: "UPI", 
+      card: "Debit / Credit Card",
+      cardNum: "Card Number", 
+      expiry: "Expiry Date", 
+      cvv: "CVV", 
+      netbanking: "Net Banking",
+      wallet: "Wallet", 
+      payBtn: `PROCEED TO PAY ₹${safeAmount}`, 
+      date: "Travel Date", 
+      bus: "Bus", 
+      seat: "Seat", 
+      fare: "Total Fare",
+      upiPlaceholder: "Enter UPI ID", 
+      processing: "Processing Payment..."
     },
     mr: {
-      route: `${from || "प्रवास"} → ${to || ""}`, method: "पेमेंट पद्धत निवडा", upi: "UPI", card: "डेबिट / क्रेडिट कार्ड",
-      cardNum: "कार्ड नंबर", expiry: "एक्सपायरी तारीख", cvv: "सीव्हीव्ही", netbanking: "नेट बँकिंग",
-      wallet: "वॉलेट", payBtn: `₹${totalAmount || 0} भरण्यासाठी पुढे जा`, date: "प्रवासाची तारीख", bus: "बस", seat: "सीट", fare: "एकूण भाडे",
-      upiPlaceholder: "UPI ID टाका (उदा. user@abc)", processing: "पेमेंट प्रक्रिया सुरू आहे... कृपया थांबा"
-    },
-    hi: {
-      route: `${from || "यात्रा"} → ${to || ""}`, method: "भुगतान विधि चुनें", upi: "UPI", card: "डेबिट / क्रेडिट कार्ड",
-      cardNum: "कार्ड नंबर", expiry: "समाप्ति तिथि", cvv: "सीवीवी", netbanking: "नेट बैंकिंग",
-      wallet: "वॉलेट", payBtn: `₹${totalAmount || 0} भुगतान के लिए आगे बढ़ें`, date: "यात्रा की तिथि", bus: "बस", seat: "सीट", fare: "कुल किराया",
-      upiPlaceholder: "UPI ID दर्ज करें (जैसे user@abc)", processing: "भुगतान संसाधित हो रहा है... कृपया प्रतीक्षा करें"
+      route: `${from || "प्रवास"} → ${to || ""}`, 
+      method: "पेमेंट पद्धत निवडा",
+      upi: "UPI", 
+      card: "डेबिट / क्रेडिट कार्ड",
+      cardNum: "कार्ड नंबर", 
+      expiry: "एक्सपायरी तारीख", 
+      cvv: "सीव्हीव्ही", 
+      netbanking: "नेट बँकिंग",
+      wallet: "वॉलेट", 
+      payBtn: `₹${safeAmount} भरण्यासाठी पुढे जा`, 
+      date: "प्रवासाची तारीख", 
+      bus: "बस", 
+      seat: "सीट", 
+      fare: "एकूण भाडे",
+      upiPlaceholder: "UPI ID टाका", 
+      processing: "पेमेंट सुरू आहे..."
     }
   };
 
   const t = translations[lang] || translations.en;
-  const banks = ["State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank", "Kotak Mahindra Bank", "Bank of Baroda"];
+  const banks = ["State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank"];
 
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
 
     if (!activeMethod && !selectedBank) {
-        alert("Please select payment method!");
-        return;
+      alert("Select payment method!");
+      return;
     }
 
-    // 🔥 EXTRA VALIDATION (NEW)
-    if (!selectedSeats || selectedSeats.length === 0) {
-        alert("Seats missing!");
-        return;
+    if (!safePassengers || safePassengers.length === 0) {
+      alert("Passenger data missing!");
+      return;
     }
 
-    if (!passengers || passengers.length === 0) {
-        alert("Passenger data missing!");
+    for (let p of safePassengers) {
+      if (!p.name || !p.age) {
+        alert("Fill all passenger details!");
         return;
+      }
     }
 
     setIsProcessing(true);
 
     try {
 
-        const payload = {
-            bookingDetails: {
-                bus_id: bus_id || busId || 1,
-                user_id: user?.user_id || user?.id || 1,
+      const passengerNames = safePassengers.map(p => p.name).join(", ");
+      const passengerAges = safePassengers.map(p => p.age).join(", ");
 
-                passenger_name: fullName || "Guest User",
-                passenger_email: email || "guest@test.com",
-                passenger_mobile: mobile || "0000000000",
+      const payload = {
+        bookingDetails: {
+          bus_id: bus_id || busId || 1,
+          user_id: user?.user_id || user?.id || 1,
 
-                seats: selectedSeats,
-                total_amount: totalAmount || 0,
+          passenger_name: passengerNames,
+          passenger_email: email || "guest@test.com",
+          passenger_mobile: mobile || "0000000000",
 
-                // 🔥 IMPORTANT FIX
-                travel_date: travelDate || new Date().toISOString().split("T")[0],
+          seats: safeSeats,
+          total_amount: safeAmount,
 
-                // 🔥 MULTI PASSENGER SUPPORT
-                passengers: passengers,
+          travel_date: travelDate || new Date().toISOString().split("T")[0],
 
-                razorpayOrderId: "DIRECT_ORD_" + Date.now(),
-                razorpayPaymentId: "DIRECT_PAY_" + Date.now()
-            }
-        };
+          passenger_age: passengerAges,
 
-        console.log("FINAL PAYLOAD:", payload);
-
-        const response = await axios.post(`${API_BASE_URL}/api/verify-payment`, payload);
-
-        if (response.data.success) {
-            setTimeout(() => {
-                setIsProcessing(false);
-                navigate("/ticket-success", { 
-                    state: { 
-                        bookingDetails: { 
-                          from, 
-                          to, 
-                          busName, 
-                          selectedSeats, 
-                          totalAmount, 
-                          travelDate, 
-                          passengers,
-                          pnr: response.data.pnr 
-                        } 
-                    } 
-                });
-            }, 2000);
-        } else {
-            throw new Error("Database insertion failed");
+          razorpayOrderId: "ORD_" + Date.now(),
+          razorpayPaymentId: "PAY_" + Date.now()
         }
+      };
+
+      console.log("🔥 FINAL PAYLOAD:", payload);
+
+      const response = await axios.post(`${API_BASE_URL}/api/verify-payment`, payload);
+
+      if (response.data.success) {
+
+        setTimeout(() => {
+          setIsProcessing(false);
+
+          navigate("/ticket-success", { 
+            state: { 
+              bookingDetails: { 
+                from, 
+                to, 
+                busName, 
+                selectedSeats: safeSeats,
+                totalAmount: safeAmount,
+                travelDate, 
+                passengers: safePassengers,
+                pnr: response.data.pnr 
+              } 
+            } 
+          });
+
+        }, 1500);
+
+      } else {
+        throw new Error("DB error");
+      }
 
     } catch (error) {
-        console.error("Booking Error:", error.response?.data || error.message);
-        setIsProcessing(false);
-        alert("Booking failed! Check backend.");
+      console.error("❌ Booking Error:", error);
+      setIsProcessing(false);
+      alert("Booking failed");
     }
   };
 
@@ -150,35 +184,52 @@ const PaymentSelection = () => {
       )}
 
       <div className="real-pg-container">
+
         <div className="lang-header">
           <select value={lang} onChange={(e) => setLang(e.target.value)}>
             <option value="en">English</option>
             <option value="mr">मराठी</option>
-            <option value="hi">हिन्दी</option>
           </select>
         </div>
 
+        {/* 🔥 FIXED SUMMARY UI */}
         <div className="summary-box">
           <div className="summary-route"><strong>{t.route}</strong></div>
-          <div className="summary-grid">
-            <div className="left-info">
-              <p>{t.date}: {travelDate || "Selected Date"}</p>
-              <p>{t.bus}: {busName || "Not Specified"}</p>
-              <p>{t.seat}: {selectedSeats?.join(", ") || "None"}</p>
-            </div>
-            <div className="right-fare">
-              <span>{t.fare}: <strong>₹{totalAmount || 0}</strong></span>
-            </div>
-          </div>
+          <p>{t.date}: {travelDate || "N/A"}</p>
+          <p>{t.bus}: {busName || "N/A"}</p>
+          <p>{t.seat}: {safeSeats.join(", ") || "None"}</p>
+          <p>{t.fare}: ₹{safeAmount}</p>
         </div>
 
-        <h4 className="payment-title-text">{t.method}</h4>
+        <h4 style={{marginTop: "10px"}}>{t.method}</h4>
 
         <form onSubmit={handlePaymentSubmit}>
-          {/* बाकी तुझा UI जसाच्या तसा आहे — काही delete नाही */}
-          <button type="submit" className="payment-proceed-btn" disabled={isProcessing}>
-            {isProcessing ? "..." : t.payBtn}
+
+          <button type="button" onClick={() => setActiveMethod("upi")}>
+            {t.upi}
           </button>
+
+          <button type="button" onClick={() => setActiveMethod("card")}>
+            {t.card}
+          </button>
+
+          <div style={{marginTop: "10px"}}>
+            <select 
+              value={selectedBank} 
+              onChange={(e) => {
+                setSelectedBank(e.target.value);
+                setActiveMethod("netbanking");
+              }}
+            >
+              <option value="">Select Bank</option>
+              {banks.map(b => <option key={b}>{b}</option>)}
+            </select>
+          </div>
+
+          <button type="submit" disabled={isProcessing}>
+            {t.payBtn}
+          </button>
+
         </form>
       </div>
     </div>

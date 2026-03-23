@@ -16,7 +16,52 @@ const TicketSuccess = () => {
     console.log("Ticket Data Received:", bookingDetails);
   }, [bookingDetails]);
 
-  // Translations Object
+  // 🔥 AUTO REDIRECT SAFETY (NEW)
+  useEffect(() => {
+    if (!bookingDetails) {
+      setTimeout(() => navigate("/"), 3000);
+    }
+  }, [bookingDetails, navigate]);
+
+  // 🔥 SAFE DATA NORMALIZATION
+  const safePassengers = bookingDetails?.passengers || [];
+  const safeSeats = bookingDetails?.selectedSeats || [];
+  const safeFrom = bookingDetails?.from || "N/A";
+  const safeTo = bookingDetails?.to || "N/A";
+  const safeBus = bookingDetails?.busName || "Bus Not Available";
+  const safeAmount = bookingDetails?.totalAmount || 0;
+  const safeDate = bookingDetails?.travelDate || new Date().toISOString().split("T")[0];
+
+  // 🔥 PNR FALLBACK (NEW)
+  const safePNR = bookingDetails?.pnr || "TEMP" + Date.now();
+
+  // 🔥 Dynamic time
+  const departureTime = "10:00 PM";
+  const arrivalTime = "06:00 AM";
+
+  // 🔥 Gender formatter
+  const formatGender = (g) => {
+    if (!g) return "M";
+    const val = g.toLowerCase();
+    if (val === "male" || val === "m") return "M";
+    if (val === "female" || val === "f") return "F";
+    return "M";
+  };
+
+  // 🔥 Passenger fallback
+  const finalPassengerList = safePassengers.length > 0 
+    ? safePassengers 
+    : safeSeats.map((seat, index) => ({
+        name: `Passenger ${index + 1}`,
+        age: "--",
+        gender: "M",
+        seat: seat
+      }));
+
+  // 🔥 TOTAL PASSENGER COUNT (NEW)
+  const totalPassengers = finalPassengerList.length;
+
+  // 🔥 Translations
   const translations = {
     en: {
       success: "Booking Successful!",
@@ -26,15 +71,15 @@ const TicketSuccess = () => {
       passName: "Passenger Name",
       seat: "Seat",
       ageSex: "Age/Sex",
-      noPass: "No Passenger Information Available",
       date: "TRAVEL DATE",
       status: "STATUS",
       confirmed: "CONFIRMED",
       total: "Total Fare Paid",
+      passengers: "Total Passengers",
       tc: "Terms & Conditions",
       tc1: "Please carry a valid Govt. ID proof during travel.",
-      tc2: "Report at the boarding point 15 minutes before departure.",
-      tc3: "Management is not responsible for loss of personal belongings.",
+      tc2: "Report 15 minutes before departure.",
+      tc3: "Company not responsible for lost items.",
       btnPdf: "Download Ticket (PDF)",
       btnHome: "Back to Home"
     },
@@ -46,37 +91,17 @@ const TicketSuccess = () => {
       passName: "प्रवाशाचे नाव",
       seat: "सीट",
       ageSex: "वय/लिंग",
-      noPass: "प्रवाशांची माहिती उपलब्ध नाही",
       date: "प्रवासाची तारीख",
       status: "स्थिती",
-      confirmed: "निश्चित (Confirmed)",
-      total: "एकूण भरलेले भाडे",
+      confirmed: "निश्चित",
+      total: "एकूण भाडे",
+      passengers: "प्रवासी संख्या",
       tc: "अटी आणि शर्ती",
-      tc1: "प्रवासादरम्यान कृपया वैध सरकारी ओळखपत्र सोबत ठेवा.",
-      tc2: "बस सुटण्यापूर्वी १५ मिनिटे आधी बोर्डिंग पॉईंटवर पोहोचा.",
-      tc3: "वैयक्तिक वस्तूंच्या चोरीला किंवा हरवल्यास कंपनी जबाबदार नसेल.",
-      btnPdf: "तिकीट डाउनलोड करा (PDF)",
-      btnHome: "मुख्य पृष्ठावर जा"
-    },
-    hi: {
-      success: "बुकिंग सफल रही!",
-      subText: "आपका टिकट सफलतापूर्वक बुक हो गया है।",
-      pnr: "पीएनआर नंबर",
-      busType: "प्रीमियम एसी स्लीपर | 2+1",
-      passName: "यात्री का नाम",
-      seat: "सीट",
-      ageSex: "आयु/लिंग",
-      noPass: "यात्री की जानकारी उपलब्ध नहीं है",
-      date: "यात्रा की तिथि",
-      status: "स्थिति",
-      confirmed: "पुष्टि (Confirmed)",
-      total: "कुल भुगतान किया गया किराया",
-      tc: "नियम एवं शर्तें",
-      tc1: "यात्रा के दौरान कृपया एक वैध सरकारी आईडी साथ रखें।",
-      tc2: "प्रस्थान से 15 मिनट पहले बोर्डिंग पॉइंट पर रिपोर्ट करें।",
-      tc3: "निजी सामान के गुम होने के लिए प्रबंधन जिम्मेदार नहीं है।",
-      btnPdf: "टिकट डाउनलोड करें (PDF)",
-      btnHome: "होम पेज पर जाएं"
+      tc1: "ओळखपत्र सोबत ठेवा.",
+      tc2: "१५ मिनिटे आधी या.",
+      tc3: "सामानाची जबाबदारी नाही.",
+      btnPdf: "PDF डाउनलोड करा",
+      btnHome: "होम"
     }
   };
 
@@ -86,33 +111,46 @@ const TicketSuccess = () => {
     return (
       <div className="error-container">
         <h3>Something went wrong!</h3>
-        <p>Unable to fetch booking details.</p>
-        <button onClick={() => navigate("/")}>Go to Home</button>
+        <p>Redirecting to home...</p>
       </div>
     );
   }
 
-  const handleDownloadPDF = () => {
+  // 🔥 IMPROVED PDF (MULTI PAGE SUPPORT)
+  const handleDownloadPDF = async () => {
     const element = ticketRef.current;
-    html2canvas(element, { scale: 2, useCORS: true }).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      pdf.addImage(imgData, "PNG", 0, 10, pdfWidth, pdfHeight);
-      pdf.save(`Ticket_${bookingDetails.pnr}.pdf`);
-    });
+
+    const canvas = await html2canvas(element, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF("p", "mm", "a4");
+    const imgWidth = 210;
+    const pageHeight = 295;
+
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    pdf.save(`Ticket_${safePNR}.pdf`);
   };
 
   return (
     <div className="ticket-page-wrapper">
-      {/* Language Selector */}
+
       <div className="lang-selector-ticket" style={{ marginBottom: '20px' }}>
-        <select value={lang} onChange={(e) => setLang(e.target.value)} style={{ padding: '8px', borderRadius: '5px' }}>
+        <select value={lang} onChange={(e) => setLang(e.target.value)}>
           <option value="en">English</option>
           <option value="mr">मराठी</option>
-          <option value="hi">हिन्दी</option>
         </select>
       </div>
 
@@ -123,31 +161,29 @@ const TicketSuccess = () => {
       </div>
 
       <div className="ticket-main-container" ref={ticketRef}>
-        {/* Top Strip */}
+
         <div className="ticket-top-strip">
           <div className="pnr-info">
             <span className="label">{t.pnr}</span>
-            <h3 className="pnr-value">{bookingDetails.pnr || "N/A"}</h3>
+            <h3 className="pnr-value">{safePNR}</h3>
           </div>
           <div className="qr-code-box">
             <img 
-              src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${bookingDetails.pnr}`} 
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${safePNR}`} 
               alt="QR Code" 
             />
           </div>
         </div>
 
-        {/* Bus Details */}
         <div className="bus-branding">
-          <h2>{bookingDetails.busName}</h2>
+          <h2>{safeBus}</h2>
           <p className="bus-type">{t.busType}</p>
         </div>
 
-        {/* Journey Path */}
         <div className="journey-track">
           <div className="stop">
-            <h4>{bookingDetails.from}</h4>
-            <p>10:00 PM</p>
+            <h4>{safeFrom}</h4>
+            <p>{departureTime}</p>
           </div>
           <div className="bus-path">
             <div className="line"></div>
@@ -155,17 +191,13 @@ const TicketSuccess = () => {
             <div className="line"></div>
           </div>
           <div className="stop">
-            <h4>{bookingDetails.to}</h4>
-            <p>06:00 AM</p>
+            <h4>{safeTo}</h4>
+            <p>{arrivalTime}</p>
           </div>
         </div>
 
-        <div className="ticket-divider">
-          <div className="cut-left"></div>
-          <div className="cut-right"></div>
-        </div>
+        <div className="ticket-divider"></div>
 
-        {/* Passenger Table */}
         <div className="passenger-section">
           <table className="passenger-table">
             <thead>
@@ -176,59 +208,54 @@ const TicketSuccess = () => {
               </tr>
             </thead>
             <tbody>
-              {bookingDetails.passengers && bookingDetails.passengers.length > 0 ? (
-                bookingDetails.passengers.map((p, index) => (
-                  <tr key={index}>
-                    <td>{p.name}</td>
-                    <td className="seat-no">{p.seat}</td>
-                    <td>{p.age} / {p.gender === 'male' || p.gender === 'M' ? 'M' : 'F'}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: '#888' }}>
-                    {t.noPass}
-                  </td>
+              {finalPassengerList.map((p, index) => (
+                <tr key={index}>
+                  <td>{p.name}</td>
+                  <td>{p.seat}</td>
+                  <td>{p.age} / {formatGender(p.gender)}</td>
                 </tr>
-              )}
+              ))}
             </tbody>
           </table>
         </div>
 
-        {/* Footer Info */}
+        {/* 🔥 NEW EXTRA INFO */}
+        <div style={{ marginTop: "10px", textAlign: "center" }}>
+          <strong>{t.passengers}: {totalPassengers}</strong>
+        </div>
+
         <div className="travel-meta">
           <div className="meta-item">
-            <span className="label">{t.date}</span>
-            <strong>{bookingDetails.travelDate}</strong>
+            <span>{t.date}</span>
+            <strong>{safeDate}</strong>
           </div>
           <div className="meta-item">
-            <span className="label">{t.status}</span>
+            <span>{t.status}</span>
             <span className="status-badge">{t.confirmed}</span>
           </div>
         </div>
 
         <div className="fare-footer">
           <span>{t.total}</span>
-          <h3>₹{bookingDetails.totalAmount}</h3>
+          <h3>₹{safeAmount}</h3>
         </div>
 
-        {/* Terms and Conditions Section */}
         <div className="ticket-instructions">
-          <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#333' }}>{t.tc}</h4>
-          <ul style={{ paddingLeft: '0', listStyle: 'none' }}>
+          <h4>{t.tc}</h4>
+          <ul>
             <li>• {t.tc1}</li>
             <li>• {t.tc2}</li>
             <li>• {t.tc3}</li>
           </ul>
         </div>
+
       </div>
 
-      {/* Buttons */}
       <div className="action-buttons-fixed">
-        <button className="btn-download" onClick={handleDownloadPDF}>
+        <button onClick={handleDownloadPDF}>
           {t.btnPdf}
         </button>
-        <button className="btn-home" onClick={() => navigate("/")}>
+        <button onClick={() => navigate("/")}>
           {t.btnHome}
         </button>
       </div>
