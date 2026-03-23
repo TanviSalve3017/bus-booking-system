@@ -40,6 +40,34 @@ const PaymentPage = () => {
     setContactInfo({ ...contactInfo, [e.target.name]: e.target.value });
   };
 
+  // 🔥 Passenger Logic
+  const { busName, seats, selectedSeats, busId, travelDate, from, to } = bookingDetails || {};
+  const finalSeats = seats || selectedSeats || [];
+
+  const [passengers, setPassengers] = useState([]);
+
+  // ✅ FIX: only update when seats actually change
+  useEffect(() => {
+    if (finalSeats && finalSeats.length > 0) {
+      setPassengers(prev => {
+        if (prev.length === finalSeats.length) return prev; // 🔥 prevent reset
+        return finalSeats.map(seat => ({
+          name: "",
+          age: "",
+          gender: "Male",
+          seat: seat
+        }));
+      });
+    }
+  }, [finalSeats]);
+
+  // ✅ CLEAN UPDATE FUNCTION
+  const updatePassenger = (index, field, value) => {
+    const updated = [...passengers];
+    updated[index][field] = value;
+    setPassengers(updated);
+  };
+
   if (!bookingDetails) {
     return (
       <div className="payment-main-container">
@@ -51,16 +79,12 @@ const PaymentPage = () => {
     );
   }
 
-  const { busName, seats, selectedSeats, busId, travelDate } = bookingDetails;
-  const finalSeats = seats || selectedSeats;
-
   const handlePayment = async () => {
     if (!contactInfo.fullName || !contactInfo.email || !contactInfo.mobile) {
       alert("कृपया सर्व माहिती भरा!");
       return;
     }
 
-    // 🔥 CRITICAL VALIDATION
     if (!busId) {
       alert("Bus ID missing!");
       console.error("❌ busId missing", bookingDetails);
@@ -73,7 +97,21 @@ const PaymentPage = () => {
       return;
     }
 
-    // 🔥 FINAL CLEAN OBJECT (backend compatible)
+    // 🔥 STRONG VALIDATION
+    for (let i = 0; i < passengers.length; i++) {
+      const p = passengers[i];
+
+      if (!p.name || !p.age) {
+        alert(`Passenger ${i + 1} details incomplete`);
+        return;
+      }
+
+      if (p.age < 1 || p.age > 100) {
+        alert(`Invalid age for Passenger ${i + 1}`);
+        return;
+      }
+    }
+
     const finalBookingData = {
       busId: busId,
       seats: finalSeats,
@@ -81,13 +119,18 @@ const PaymentPage = () => {
       email: contactInfo.email,
       mobile: contactInfo.mobile,
       totalAmount: displayAmount,
-      travelDate: travelDate || bookingDetails.travel_date || null
+      travelDate: travelDate || bookingDetails.travel_date || null,
+
+      passengers: passengers,
+      from: from || "N/A",
+      to: to || "N/A",
+      busName: busName || "N/A"
     };
 
     console.log("🚀 FINAL DATA SENT TO NEXT PAGE:", finalBookingData);
 
     navigate("/payment-selection", { 
-      state: finalBookingData   // 🔥 CLEAN STRUCTURE
+      state: finalBookingData
     });
   };
 
@@ -100,6 +143,10 @@ const PaymentPage = () => {
           <div className="summary-row">
             <span>Bus:</span>
             <strong>{busName || "N/A"}</strong>
+          </div>
+          <div className="summary-row">
+            <span>Route:</span>
+            <strong>{from || "N/A"} → {to || "N/A"}</strong>
           </div>
           <div className="summary-row">
             <span>Seats:</span>
@@ -124,6 +171,39 @@ const PaymentPage = () => {
             <label>Mobile Number</label>
             <input type="text" name="mobile" value={contactInfo.mobile} onChange={handleChange} required />
           </div>
+        </div>
+
+        {/* 🔥 Passenger UI */}
+        <div className="passenger-section">
+          <h3>Passenger Details</h3>
+
+          {passengers.map((p, index) => (
+            <div key={index} style={{ marginBottom: "15px" }}>
+              <p><strong>Seat: {p.seat}</strong></p>
+
+              <input
+                type="text"
+                placeholder="Name"
+                value={p.name}
+                onChange={(e) => updatePassenger(index, "name", e.target.value)}
+              />
+
+              <input
+                type="number"
+                placeholder="Age"
+                value={p.age}
+                onChange={(e) => updatePassenger(index, "age", e.target.value)}
+              />
+
+              <select
+                value={p.gender}
+                onChange={(e) => updatePassenger(index, "gender", e.target.value)}
+              >
+                <option>Male</option>
+                <option>Female</option>
+              </select>
+            </div>
+          ))}
         </div>
 
         <button className="pay-now-btn" onClick={handlePayment}>

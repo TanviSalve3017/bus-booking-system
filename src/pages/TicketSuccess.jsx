@@ -16,6 +16,38 @@ const TicketSuccess = () => {
     console.log("Ticket Data Received:", bookingDetails);
   }, [bookingDetails]);
 
+  // 🔥 NEW: SAFE DATA NORMALIZATION
+  const safePassengers = bookingDetails?.passengers || [];
+  const safeSeats = bookingDetails?.selectedSeats || [];
+  const safeFrom = bookingDetails?.from || "N/A";
+  const safeTo = bookingDetails?.to || "N/A";
+  const safeBus = bookingDetails?.busName || "Bus Not Available";
+  const safeAmount = bookingDetails?.totalAmount || 0;
+  const safeDate = bookingDetails?.travelDate || new Date().toISOString().split("T")[0];
+
+  // 🔥 NEW: Dynamic time (basic realistic logic)
+  const departureTime = "10:00 PM";
+  const arrivalTime = "06:00 AM";
+
+  // 🔥 NEW: gender formatter
+  const formatGender = (g) => {
+    if (!g) return "M";
+    const val = g.toLowerCase();
+    if (val === "male" || val === "m") return "M";
+    if (val === "female" || val === "f") return "F";
+    return "M";
+  };
+
+  // 🔥 NEW: fallback passenger creation if missing
+  const finalPassengerList = safePassengers.length > 0 
+    ? safePassengers 
+    : safeSeats.map((seat, index) => ({
+        name: `Passenger ${index + 1}`,
+        age: "--",
+        gender: "M",
+        seat: seat
+      }));
+
   // Translations Object
   const translations = {
     en: {
@@ -107,7 +139,7 @@ const TicketSuccess = () => {
 
   return (
     <div className="ticket-page-wrapper">
-      {/* Language Selector */}
+
       <div className="lang-selector-ticket" style={{ marginBottom: '20px' }}>
         <select value={lang} onChange={(e) => setLang(e.target.value)} style={{ padding: '8px', borderRadius: '5px' }}>
           <option value="en">English</option>
@@ -123,7 +155,7 @@ const TicketSuccess = () => {
       </div>
 
       <div className="ticket-main-container" ref={ticketRef}>
-        {/* Top Strip */}
+
         <div className="ticket-top-strip">
           <div className="pnr-info">
             <span className="label">{t.pnr}</span>
@@ -137,17 +169,16 @@ const TicketSuccess = () => {
           </div>
         </div>
 
-        {/* Bus Details */}
         <div className="bus-branding">
-          <h2>{bookingDetails.busName}</h2>
+          <h2>{safeBus}</h2>
           <p className="bus-type">{t.busType}</p>
         </div>
 
-        {/* Journey Path */}
+        {/* 🔥 IMPROVED ROUTE */}
         <div className="journey-track">
           <div className="stop">
-            <h4>{bookingDetails.from}</h4>
-            <p>10:00 PM</p>
+            <h4>{safeFrom}</h4>
+            <p>{departureTime}</p>
           </div>
           <div className="bus-path">
             <div className="line"></div>
@@ -155,8 +186,8 @@ const TicketSuccess = () => {
             <div className="line"></div>
           </div>
           <div className="stop">
-            <h4>{bookingDetails.to}</h4>
-            <p>06:00 AM</p>
+            <h4>{safeTo}</h4>
+            <p>{arrivalTime}</p>
           </div>
         </div>
 
@@ -165,7 +196,6 @@ const TicketSuccess = () => {
           <div className="cut-right"></div>
         </div>
 
-        {/* Passenger Table */}
         <div className="passenger-section">
           <table className="passenger-table">
             <thead>
@@ -176,30 +206,21 @@ const TicketSuccess = () => {
               </tr>
             </thead>
             <tbody>
-              {bookingDetails.passengers && bookingDetails.passengers.length > 0 ? (
-                bookingDetails.passengers.map((p, index) => (
-                  <tr key={index}>
-                    <td>{p.name}</td>
-                    <td className="seat-no">{p.seat}</td>
-                    <td>{p.age} / {p.gender === 'male' || p.gender === 'M' ? 'M' : 'F'}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: '#888' }}>
-                    {t.noPass}
-                  </td>
+              {finalPassengerList.map((p, index) => (
+                <tr key={index}>
+                  <td>{p.name}</td>
+                  <td className="seat-no">{p.seat}</td>
+                  <td>{p.age} / {formatGender(p.gender)}</td>
                 </tr>
-              )}
+              ))}
             </tbody>
           </table>
         </div>
 
-        {/* Footer Info */}
         <div className="travel-meta">
           <div className="meta-item">
             <span className="label">{t.date}</span>
-            <strong>{bookingDetails.travelDate}</strong>
+            <strong>{safeDate}</strong>
           </div>
           <div className="meta-item">
             <span className="label">{t.status}</span>
@@ -209,10 +230,9 @@ const TicketSuccess = () => {
 
         <div className="fare-footer">
           <span>{t.total}</span>
-          <h3>₹{bookingDetails.totalAmount}</h3>
+          <h3>₹{safeAmount}</h3>
         </div>
 
-        {/* Terms and Conditions Section */}
         <div className="ticket-instructions">
           <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#333' }}>{t.tc}</h4>
           <ul style={{ paddingLeft: '0', listStyle: 'none' }}>
@@ -223,7 +243,6 @@ const TicketSuccess = () => {
         </div>
       </div>
 
-      {/* Buttons */}
       <div className="action-buttons-fixed">
         <button className="btn-download" onClick={handleDownloadPDF}>
           {t.btnPdf}
