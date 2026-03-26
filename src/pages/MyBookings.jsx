@@ -8,9 +8,7 @@ const MyBookings = () => {
     const userString = localStorage.getItem("user");
     const user = userString ? JSON.parse(userString) : null;
 
-    // 🔥 NEW: refresh state (manual reload)
-    const [refresh, setRefresh] = useState(false);
-
+    // ✅ डायनॅमिक URL लॉजिक
     const API_BASE_URL = window.location.hostname === "localhost" 
         ? "http://localhost:5001" 
         : "https://bus-booking-backend-zd3f.onrender.com";
@@ -29,9 +27,8 @@ const MyBookings = () => {
             seats: "Seats Reserved",
             total: "Total Amount Paid",
             cancelBtn: "Cancel Ticket",
-            confirmCancel: "Do you really want to cancel this ticket?",
-            serverError: "System error! Ticket cancellation failed.",
-            refresh: "Refresh"
+            confirmCancel: "Do you really want to cancel this ticket? The refund will be processed as per policy.",
+            serverError: "System error! Ticket cancellation failed."
         },
         mr: {
             title: "माझी बुकिंग्स 🎫",
@@ -46,9 +43,8 @@ const MyBookings = () => {
             seats: "आरक्षित जागा",
             total: "एकूण भरलेले शुल्क",
             cancelBtn: "तिकीट रद्द करा",
-            confirmCancel: "तुम्हाला खात्री आहे का?",
-            serverError: "सिस्टम एरर!",
-            refresh: "रिफ्रेश"
+            confirmCancel: "तुम्हाला खात्री आहे की तुम्हाला हे तिकीट रद्द करायचे आहे? परतावा पॉलिसीनुसार मिळेल.",
+            serverError: "सिस्टम एरर! तिकीट रद्द होऊ शकले नाही."
         },
         hi: {
             title: "मेरी बुकिंग 🎫",
@@ -63,149 +59,151 @@ const MyBookings = () => {
             seats: "आरक्षित सीटें",
             total: "कुल भुगतान",
             cancelBtn: "टिकट रद्द करें",
-            confirmCancel: "क्या आप पक्का करना चाहते हैं?",
-            serverError: "सिस्टम एरर!",
-            refresh: "रिफ्रेश"
+            confirmCancel: "क्या आप वाकई इस टिकट को रद्द करना चाहते हैं? रिफंड पॉलिसी के अनुसार दिया जाएगा।",
+            serverError: "सिस्टम एरर! टिकट रद्द नहीं किया जा सका।"
         }
     };
 
     const t = translations[lang];
 
-    // ✅ Date formatter (same logic, improved fallback)
+    // ✅ तारीख फिक्स करण्यासाठी सुधारित फंक्शन
     const formatDate = (dateStr) => {
         if (!dateStr) return "";
-
+        
+        // जर तारीख ISO String स्वरूपात असेल (उदा. 2026-03-24T00:00:00.000Z)
+        // तर फक्त तारीख (2026-03-24) वेगळी काढूया
         const cleanDate = dateStr.includes("T") ? dateStr.split("T")[0] : dateStr;
 
         if (cleanDate.includes("-")) {
             const parts = cleanDate.split("-");
+            // जर फॉरमॅट YYYY-MM-DD असेल तरच तो पलटी करून DD/MM/YYYY करू
             if (parts[0].length === 4) {
                 return `${parts[2]}/${parts[1]}/${parts[0]}`;
             }
         }
-
+        
+        // जर वरील लॉजिक चाललं नाही तर फॉलबॅक म्हणून जुनं लॉजिक
         const date = new Date(dateStr);
         if (isNaN(date.getTime())) return dateStr;
-
-        return date.toLocaleDateString();
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
     };
 
-    // 🔥 IMPROVED FETCH (error handling + retry safe)
-    const fetchBookings = async () => {
-        if (!user) {
-            setLoading(false);
-            return;
-        }
-
-        try {
-            const uid = user.user_id || user.id || 1;
+    const fetchBookings = () => {
+        if (user) {
+            const uid = user.user_id || user.id || 1; 
             setLoading(true);
-
-            const res = await axios.get(`${API_BASE_URL}/api/my-bookings/${uid}`);
-
-            console.log("Bookings Data Received:", res.data);
-
-            // 🔥 SAFE fallback (if API returns null)
-            setBookings(Array.isArray(res.data) ? res.data : []);
-
-        } catch (err) {
-            console.error("Fetch Error:", err.response || err);
-
-            // 🔥 IMPORTANT: handle 404 properly
-            if (err.response?.status === 404) {
-                setBookings([]); // no bookings instead of crash
-            }
-
-        } finally {
+            
+            axios.get(`${API_BASE_URL}/api/my-bookings/${uid}`)
+                .then(res => {
+                    console.log("Bookings Data Received:", res.data); 
+                    setBookings(res.data);
+                    setLoading(false);
+                })
+                .catch(err => {
+                    console.error("Fetch Error:", err.response || err);
+                    setLoading(false);
+                });
+        } else {
             setLoading(false);
         }
     };
 
     useEffect(() => {
         fetchBookings();
-    }, [refresh]); // 🔥 auto refresh support
+    }, []);
 
-    const handleCancelTicket = async (pnr) => {
-        if (!window.confirm(t.confirmCancel)) return;
-
-        try {
-            const res = await axios.put(`${API_BASE_URL}/api/cancel-ticket/${pnr}`);
-
-            if (res.data.success) {
-                alert(res.data.message || "Cancelled successfully");
-
-                // 🔥 REFRESH LIST
-                setRefresh(prev => !prev);
-            }
-
-        } catch (err) {
-            const errorMsg = err.response?.data?.message || t.serverError;
-            alert(errorMsg);
+    const handleCancelTicket = (pnr) => {
+        if (window.confirm(t.confirmCancel)) {
+            axios.put(`${API_BASE_URL}/api/cancel-ticket/${pnr}`)
+                .then(res => {
+                    if (res.data.success) {
+                        alert(res.data.message); 
+                        fetchBookings(); 
+                    }
+                })
+                .catch(err => {
+                    const errorMsg = err.response?.data?.message || t.serverError;
+                    alert(errorMsg);
+                });
         }
     };
 
-    if (!user) {
-        return (
-            <div style={{ textAlign: "center", padding: "100px", fontSize: "24px" }}>
-                {t.loginFirst}
-            </div>
-        );
-    }
+    if (!user) return <div style={{ textAlign: "center", padding: "100px", fontSize: "24px" }}>{t.loginFirst}</div>;
 
     return (
         <div style={{ maxWidth: "850px", margin: "40px auto", padding: "20px", fontFamily: "'Segoe UI', Roboto, sans-serif", backgroundColor: "#fbfcfd" }}>
             
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px" }}>
                 <h2 style={{ color: "#1a202c", margin: 0, fontSize: "28px", fontWeight: "700" }}>{t.title}</h2>
-
-                <div style={{ display: "flex", gap: "10px" }}>
-                    <select 
-                        value={lang} 
-                        onChange={(e) => setLang(e.target.value)}
-                        style={{ padding: "8px", borderRadius: "8px" }}
-                    >
-                        <option value="en">English</option>
-                        <option value="mr">मराठी</option>
-                        <option value="hi">हिन्दी</option>
-                    </select>
-
-                    {/* 🔥 MANUAL REFRESH BUTTON */}
-                    <button onClick={() => setRefresh(prev => !prev)}>
-                        {t.refresh}
-                    </button>
-                </div>
+                <select 
+                    value={lang} 
+                    onChange={(e) => setLang(e.target.value)}
+                    style={{ padding: "8px 15px", borderRadius: "8px", border: "1px solid #e2e8f0", backgroundColor: "#fff", cursor: "pointer", outline: "none" }}
+                >
+                    <option value="en">English</option>
+                    <option value="mr">मराठी</option>
+                    <option value="hi">हिन्दी</option>
+                </select>
             </div>
 
             {loading ? (
-                <div style={{ textAlign: "center", padding: "50px" }}>{t.loading}</div>
+                <div style={{ textAlign: "center", padding: "50px", color: "#4a5568" }}>{t.loading}</div>
             ) : bookings.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "60px", backgroundColor: "#fff", borderRadius: "15px" }}>
-                    <p>{t.noBookings}</p>
+                <div style={{ textAlign: "center", padding: "60px", backgroundColor: "#fff", borderRadius: "15px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)" }}>
+                    <p style={{ fontSize: "20px", color: "#718096" }}>{t.noBookings}</p>
                 </div>
             ) : (
                 <div style={{ display: "grid", gap: "20px" }}>
                     {bookings.map((b) => (
                         <div key={b.booking_id} style={{ 
                             border: "1px solid #e2e8f0", padding: "25px", borderRadius: "16px", backgroundColor: "#ffffff", 
-                            display: "flex", justifyContent: "space-between"
+                            display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 4px 10px rgba(0,0,0,0.03)"
                         }}>
-                            <div>
-                                <h3>{b.bus_name || "Bus Details"}</h3>
-                                <p>{t.pnr}: {b.pnr}</p>
-                                <p>{b.source} ➔ {b.destination}</p>
-
-                                <span>
-                                    {b.status === 'Cancelled' ? t.cancelled : t.confirmed}
-                                </span>
+                            <div style={{ flex: 2 }}>
+                                <h3 style={{ margin: "0 0 10px 0", color: "#2b6cb0", fontSize: "22px" }}>{b.bus_name || "Bus Details"}</h3>
+                                <div style={{ marginBottom: "12px" }}>
+                                    <span style={{ backgroundColor: "#edf2f7", padding: "4px 10px", borderRadius: "6px", fontSize: "12px", fontWeight: "bold" }}>
+                                        {t.pnr}: {b.pnr}
+                                    </span>
+                                </div>
+                                <div style={{ fontSize: "16px", fontWeight: "600", textTransform: "capitalize" }}>
+                                    {b.source} <span style={{ color: "#3182ce" }}>➔</span> {b.destination}
+                                </div>
+                                <div style={{ marginTop: "15px" }}>
+                                    <span style={{ 
+                                        padding: "6px 12px", borderRadius: "20px", fontSize: "13px", fontWeight: "700",
+                                        backgroundColor: b.status === 'Cancelled' ? "#fff5f5" : "#f0fff4",
+                                        color: b.status === 'Cancelled' ? "#c53030" : "#2f855a",
+                                        border: `1px solid ${b.status === 'Cancelled' ? "#feb2b2" : "#9ae6b4"}`
+                                    }}>
+                                        {b.status === 'Cancelled' ? t.cancelled : t.confirmed}
+                                    </span>
+                                </div>
                             </div>
 
-                            <div style={{ textAlign: "right" }}>
-                                <p>{t.date}: {formatDate(b.travel_date)}</p>
-                                <p>{t.seats}: {b.seat_numbers}</p>
-                                <p>₹{b.total_amount}</p>
-
+                            <div style={{ textAlign: "right", flex: 1 }}>
+                                <div style={{ marginBottom: "15px" }}>
+                                    <p style={{ margin: "0", color: "#718096", fontSize: "13px" }}>{t.date}</p>
+                                    <p style={{ margin: "2px 0", fontWeight: "600" }}>
+                                        {formatDate(b.travel_date)}
+                                    </p>
+                                </div>
+                                <div style={{ marginBottom: "15px" }}>
+                                    <p style={{ margin: "0", color: "#718096", fontSize: "13px" }}>{t.seats}</p>
+                                    <p style={{ margin: "2px 0", fontWeight: "600" }}>{b.seat_numbers}</p>
+                                </div>
+                                <div style={{ marginBottom: "15px" }}>
+                                    <p style={{ margin: "0", color: "#718096", fontSize: "13px" }}>{t.total}</p>
+                                    <p style={{ margin: "2px 0", fontSize: "20px", fontWeight: "800" }}>₹{b.total_amount}</p>
+                                </div>
+                                
                                 {b.status !== "Cancelled" && (
-                                    <button onClick={() => handleCancelTicket(b.pnr)}>
+                                    <button onClick={() => handleCancelTicket(b.pnr)} 
+                                        style={{ backgroundColor: "#fff", color: "#e53e3e", padding: "8px 18px", borderRadius: "8px", cursor: "pointer", border: "1.5px solid #e53e3e", fontWeight: "600" }}
+                                    >
                                         {t.cancelBtn}
                                     </button>
                                 )}
