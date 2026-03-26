@@ -35,42 +35,52 @@ const PaymentSelection = () => {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  const t = {
-    route: `${from || "Route"} → ${to || ""}`,
-    method: "Choose Payment Method",
-    payBtn: `PROCEED TO PAY ₹${totalAmount || 0}`,
-    processing: "Processing Payment..."
+  const translations = {
+    en: {
+      route: `${from || "Route"} → ${to || ""}`, method: "Choose Payment Method", upi: "UPI", card: "Debit / Credit Card",
+      cardNum: "Card Number", expiry: "Expiry Date", cvv: "CVV", netbanking: "Net Banking",
+      wallet: "Wallet", payBtn: `PROCEED TO PAY ₹${totalAmount || 0}`, date: "Travel Date", bus: "Bus", seat: "Seat", fare: "Total Fare",
+      upiPlaceholder: "Enter UPI ID (e.g. user@abc)", processing: "Processing Payment... Please wait"
+    },
+    mr: {
+      route: `${from || "प्रवास"} → ${to || ""}`, method: "पेमेंट पद्धत निवडा", upi: "UPI", card: "डेबिट / क्रेडिट कार्ड",
+      cardNum: "कार्ड नंबर", expiry: "एक्सपायरी तारीख", cvv: "सीव्हीव्ही", netbanking: "नेट बँकिंग",
+      wallet: "वॉलेट", payBtn: `₹${totalAmount || 0} भरण्यासाठी पुढे जा`, date: "प्रवासाची तारीख", bus: "बस", seat: "सीट", fare: "एकूण भाडे",
+      upiPlaceholder: "UPI ID टाका (उदा. user@abc)", processing: "पेमेंट प्रक्रिया सुरू आहे... कृपया थांबा"
+    },
+    hi: {
+      route: `${from || "यात्रा"} → ${to || ""}`, method: "भुगतान विधि चुनें", upi: "UPI", card: "डेबिट / क्रेडिट कार्ड",
+      cardNum: "कार्ड नंबर", expiry: "समाप्ति तिथि", cvv: "सीवीवी", netbanking: "नेट बैंकिंग",
+      wallet: "वॉलेट", payBtn: `₹${totalAmount || 0} भुगतान के लिए आगे बढ़ें`, date: "यात्रा की तिथि", bus: "बस", seat: "सीट", fare: "कुल किराया",
+      upiPlaceholder: "UPI ID दर्ज करें (जैसे user@abc)", processing: "भुगतान संसाधित हो रहा है... कृपया प्रतीक्षा करें"
+    }
   };
 
+  const t = translations[lang] || translations.en;
   const banks = ["State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank", "Kotak Mahindra Bank", "Bank of Baroda"];
 
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
 
-    // 🔥 Debug logs
-    console.log("🔥 travelDate:", travelDate);
-    console.log("🔥 selectedSeats:", selectedSeats);
-    console.log("🔥 bookingData:", bookingData);
+    // 🔥 DEBUG (important)
+    console.log("🚀 FULL BOOKING DATA:", bookingData);
 
-    // 🔥 Travel Date check
+    // 🔥 Travel Date check (MAIN FIX)
     if (!travelDate) {
         alert("Travel date missing!");
+        console.error("❌ travelDate missing:", bookingData);
         return;
     }
 
-    // 🔥 Seat check
-    const finalSeats = (selectedSeats && selectedSeats.length > 0) 
-        ? selectedSeats 
-        : (bookingData.seats || []);
-
-    if (!finalSeats || finalSeats.length === 0) {
-        alert("Seats missing!");
+    // 🔥 Seats check (extra safety)
+    if (!selectedSeats || selectedSeats.length === 0) {
+        alert("No seats selected!");
         return;
     }
 
     // 🔥 Payment method check
     if (!activeMethod && !selectedBank) {
-        alert("Please select a payment method!");
+        alert(lang === "mr" ? "कृपया एक पेमेंट पद्धत निवडा!" : "Please select a payment method!");
         return;
     }
 
@@ -86,8 +96,10 @@ const PaymentSelection = () => {
                 passenger_email: email || "guest@test.com",
                 passenger_mobile: mobile || "0000000000",
 
-                seats: finalSeats,
+                seats: selectedSeats,
                 total_amount: totalAmount,
+
+                // 🔥 CRITICAL FIX
                 travel_date: travelDate,
 
                 razorpayOrderId: "DIRECT_ORD_" + Date.now(),
@@ -95,7 +107,7 @@ const PaymentSelection = () => {
             }
         };
 
-        console.log("🚀 FINAL PAYLOAD:", payload);
+        console.log("🔥 FINAL PAYLOAD:", payload);
 
         const response = await axios.post(`${API_BASE_URL}/api/verify-payment`, payload);
 
@@ -108,7 +120,7 @@ const PaymentSelection = () => {
                           from, 
                           to, 
                           busName, 
-                          selectedSeats: finalSeats, 
+                          selectedSeats, 
                           totalAmount, 
                           travelDate, 
                           passengers,
@@ -116,59 +128,60 @@ const PaymentSelection = () => {
                         } 
                     } 
                 });
-            }, 1500);
+            }, 2000);
         } else {
-            throw new Error("Insert failed");
+            throw new Error("Database insertion failed");
         }
 
     } catch (error) {
-        console.error("❌ Booking Error:", error);
+        console.error("❌ FULL ERROR:", error);
+        console.error("❌ BACKEND ERROR:", error?.response?.data);
+
         setIsProcessing(false);
-        alert("Booking failed!");
+        alert("Booking failed! Check console.");
     }
   };
 
   return (
-    <div className="pg-wrapper">
-
+    <div className="real-pg-wrapper">
       {isProcessing && (
-        <div className="loader">
-          <div className="spinner"></div>
-          <p>{t.processing}</p>
+        <div className="payment-loader-overlay">
+          <div className="loader-box">
+            <div className="spinner"></div>
+            <p>{t.processing}</p>
+          </div>
         </div>
       )}
 
-      <div className="pg-container">
-
-        <div className="summary">
-          <h3>{t.route}</h3>
-          <p>Date: {travelDate}</p>
-          <p>Bus: {busName}</p>
-          <p>Seats: {selectedSeats?.join(", ")}</p>
-          <h2>₹{totalAmount}</h2>
+      <div className="real-pg-container">
+        <div className="lang-header">
+          <select value={lang} onChange={(e) => setLang(e.target.value)}>
+            <option value="en">English</option>
+            <option value="mr">मराठी</option>
+            <option value="hi">हिन्दी</option>
+          </select>
         </div>
 
-        <h4>{t.method}</h4>
+        <div className="summary-box">
+          <div className="summary-route"><strong>{t.route}</strong></div>
+          <div className="summary-grid">
+            <div className="left-info">
+              <p>{t.date}: {travelDate || "Selected Date"}</p>
+              <p>{t.bus}: {busName || "Not Specified"}</p>
+              <p>{t.seat}: {selectedSeats?.join(", ") || "None"}</p>
+            </div>
+            <div className="right-fare">
+              <span>{t.fare}: <strong>₹{totalAmount || 0}</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <h4 className="payment-title-text">{t.method}</h4>
 
         <form onSubmit={handlePaymentSubmit}>
-
-          <button type="button" onClick={() => setActiveMethod("upi")} className={activeMethod==="upi"?"active":""}>
-            UPI
+          <button type="submit" className="payment-proceed-btn" disabled={isProcessing}>
+            {isProcessing ? "..." : t.payBtn}
           </button>
-
-          <button type="button" onClick={() => setActiveMethod("card")} className={activeMethod==="card"?"active":""}>
-            Card
-          </button>
-
-          <select value={selectedBank} onChange={(e)=>setSelectedBank(e.target.value)}>
-            <option value="">Select Bank</option>
-            {banks.map(b => <option key={b}>{b}</option>)}
-          </select>
-
-          <button type="submit" disabled={isProcessing}>
-            {t.payBtn}
-          </button>
-
         </form>
       </div>
     </div>
