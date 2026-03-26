@@ -7,15 +7,7 @@ const PaymentSelection = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState("card");
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const API_BASE_URL =
-    window.location.hostname === "localhost"
-      ? "http://localhost:5001"
-      : "https://bus-booking-backend-zd3f.onrender.com";
-
-  const bookingData = location.state || {};
+  const data = location.state?.bookingDetails || {};
 
   const {
     totalAmount,
@@ -24,16 +16,27 @@ const PaymentSelection = () => {
     to,
     selectedSeats,
     travelDate,
-    busId,
     passengers,
-    fullName,
     email,
     mobile,
-  } = bookingData;
+    busId,
+    bus_id
+  } = data;
+
+  const finalAmount = totalAmount || 0;
+
+  const [activeMethod, setActiveMethod] = useState("upi");
+  const [selectedBank, setSelectedBank] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  const handlePayment = async () => {
+  const API_BASE_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:5001"
+      : "https://bus-booking-backend-zd3f.onrender.com";
+
+  const handlePaymentSubmit = async () => {
     if (!passengers || passengers.length === 0) {
       alert("Passenger data missing!");
       return;
@@ -44,125 +47,111 @@ const PaymentSelection = () => {
     try {
       const payload = {
         bookingDetails: {
-          bus_id: busId,
+          bus_id: bus_id || busId,
           user_id: user?.id || 1,
           passenger_name: passengers.map(p => p.name).join(", "),
           passenger_age: passengers.map(p => p.age).join(", "),
           passenger_email: email,
           passenger_mobile: mobile,
-          seats: (selectedSeats || []).join(","), // FIX
-          total_amount: totalAmount,
-          travel_date: travelDate,
-          razorpayOrderId: "ORD_" + Date.now(),
-          razorpayPaymentId: "PAY_" + Date.now(),
-        },
+          seats: selectedSeats,
+          total_amount: finalAmount,
+          travel_date: travelDate
+        }
       };
 
-      const res = await axios.post(
-        `${API_BASE_URL}/api/verify-payment`,
-        payload
-      );
+      const res = await axios.post(`${API_BASE_URL}/api/verify-payment`, payload);
 
       if (res.data.success) {
         navigate("/ticket-success", {
           state: {
             bookingDetails: {
-              ...bookingData,
-              pnr: res.data.pnr,
-            },
-          },
+              ...data,
+              pnr: res.data.pnr
+            }
+          }
         });
+      } else {
+        throw new Error();
       }
+
     } catch (err) {
       console.error(err);
-      alert("Booking Failed");
+      alert("Booking failed");
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <div className="payment-page">
+    <div className="payment-wrapper">
 
-      {/* 🔝 HEADER */}
-      <div className="top-bar">
-        <h2>BusBooking</h2>
-        <div className="steps">
-          <span>Search</span>
-          <span>Select Bus</span>
-          <span className="active">Payment</span>
-        </div>
+      {/* 🔥 SUMMARY */}
+      <div className="summary-card">
+        <h3>{from} → {to}</h3>
+        <p>Travel Date: {travelDate}</p>
+        <p>Bus: {busName}</p>
+        <p>Seats: {selectedSeats?.join(", ")}</p>
+        <h4>Total Fare: ₹{finalAmount}</h4>
       </div>
 
-      <h1 className="title">Complete Your Payment</h1>
-      <p className="subtitle">Securely pay for your bus ticket booking.</p>
+      {/* 🔥 METHODS */}
+      <div className="payment-box">
 
-      <div className="payment-container">
+        {/* UPI */}
+        <div className="method-card">
+          <h4>UPI</h4>
+          <div className="upi-options">
+            <button onClick={() => setActiveMethod("phonepe")}>PhonePe</button>
+            <button onClick={() => setActiveMethod("gpay")}>Google Pay</button>
+            <button onClick={() => setActiveMethod("paytm")}>Paytm</button>
+          </div>
+        </div>
 
-        {/* LEFT SIDE */}
-        <div className="payment-left">
+        {/* CARD */}
+        <div className="method-card">
+          <h4>Debit / Credit Card</h4>
 
-          {/* TABS */}
-          <div className="tabs">
-            <button onClick={() => setActiveTab("card")} className={activeTab==="card"?"active":""}>Card</button>
-            <button onClick={() => setActiveTab("upi")}>UPI</button>
-            <button onClick={() => setActiveTab("wallet")}>Wallets</button>
+          <input placeholder="Card Number" />
+          <div className="card-row">
+            <input placeholder="MM/YY" />
+            <input placeholder="CVV" />
           </div>
 
-          {/* CARD FORM */}
-          {activeTab === "card" && (
-            <div className="card-box">
-              <input placeholder="Card Number" />
-              <div className="row">
-                <input placeholder="MM/YY" />
-                <input placeholder="CVV" />
-              </div>
-              <input placeholder="Card Holder Name" />
-              <button className="pay-btn" onClick={handlePayment}>
-                {isProcessing ? "Processing..." : `Pay ₹${totalAmount}`}
-              </button>
-            </div>
-          )}
-
-          {/* UPI */}
-          {activeTab === "upi" && (
-            <div className="card-box">
-              <input placeholder="Enter UPI ID" />
-              <button className="pay-btn" onClick={handlePayment}>
-                Pay ₹{totalAmount}
-              </button>
-            </div>
-          )}
-
-          {/* WALLET */}
-          {activeTab === "wallet" && (
-            <div className="card-box">
-              <p>Select Wallet</p>
-              <button className="pay-btn" onClick={handlePayment}>
-                Pay ₹{totalAmount}
-              </button>
-            </div>
-          )}
-
         </div>
 
-        {/* RIGHT SIDE (SUMMARY) */}
-        <div className="payment-right">
-          <h3>Fare Summary</h3>
+        {/* NET BANKING */}
+        <div className="method-card">
+          <h4>Net Banking</h4>
 
-          <p><strong>Bus:</strong> {busName}</p>
-          <p><strong>Route:</strong> {from} → {to}</p>
-          <p><strong>Seats:</strong> {selectedSeats?.join(", ")}</p>
+          <select onChange={(e) => setSelectedBank(e.target.value)}>
+            <option>Select Bank</option>
+            <option>SBI</option>
+            <option>HDFC</option>
+            <option>ICICI</option>
+            <option>AXIS</option>
+          </select>
+        </div>
 
-          <hr />
+        {/* WALLET */}
+        <div className="method-card">
+          <h4>Wallet</h4>
 
-          <p>Total Amount:</p>
-          <h2>₹{totalAmount}</h2>
-
-          <p className="secure">100% Secure Payment</p>
+          <button>Amazon Pay</button>
+          <button>Paytm Wallet</button>
+          <button>MobiKwik</button>
         </div>
 
       </div>
+
+      {/* 🔥 BUTTON */}
+      <button
+        className="pay-btn"
+        onClick={handlePaymentSubmit}
+        disabled={isProcessing}
+      >
+        {isProcessing ? "Processing..." : `PROCEED TO PAY ₹${finalAmount}`}
+      </button>
+
     </div>
   );
 };

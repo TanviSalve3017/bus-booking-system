@@ -1,68 +1,39 @@
-.payment-page {
+.payment-wrapper {
+  max-width: 500px;
+  margin: auto;
   padding: 20px;
-  background: linear-gradient(#dfe9f3, #fff);
-  min-height: 100vh;
 }
 
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-}
-
-.steps span {
-  margin: 0 10px;
-  opacity: 0.5;
-}
-
-.steps .active {
-  font-weight: bold;
-  opacity: 1;
-}
-
-.payment-container {
-  display: flex;
-  gap: 30px;
-  margin-top: 30px;
-}
-
-.payment-left {
-  flex: 2;
-  background: #fff;
-  padding: 20px;
+.summary-card {
+  background: #f5f5f5;
+  padding: 15px;
   border-radius: 10px;
+  margin-bottom: 20px;
 }
 
-.payment-right {
-  flex: 1;
-  background: #fff;
-  padding: 20px;
+.method-card {
+  background: white;
+  padding: 15px;
+  margin-bottom: 15px;
   border-radius: 10px;
+  border: 1px solid #ddd;
 }
 
-.tabs button {
+.upi-options button {
   margin-right: 10px;
 }
 
-.card-box input {
-  width: 100%;
-  margin: 10px 0;
-  padding: 10px;
-}
-
-.row {
+.card-row {
   display: flex;
   gap: 10px;
 }
 
 .pay-btn {
   width: 100%;
-  padding: 12px;
-  background: red;
+  background: green;
   color: white;
+  padding: 15px;
   border: none;
-  cursor: pointer;
-}
-
-.secure {
-  color: green;
+  border-radius: 8px;
+  font-weight: bold;
 }
