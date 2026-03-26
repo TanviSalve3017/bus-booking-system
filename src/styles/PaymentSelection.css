@@ -127,22 +127,17 @@
 .upi-button-group {
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* जागा कमी असेल तर बटणे खालच्या ओळीत येतील */
+  margin-bottom: 10px;
 }
 
 .upi-item {
-  flex: 1;
+  flex: 1; 
+  min-width: 100px; /* बटण खूप लहान होऊ नये म्हणून */
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: #fff;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: var(--transition);
+  /* बाकीचे आधीचे स्टाईल्स तसेच ठेव */
 }
 
 .active-btn {
@@ -151,18 +146,22 @@
   font-weight: bold;
 }
 
+/* UPI Input Field फिक्स */
 .upi-input-field {
   margin-top: 15px;
+  width: 100%; /* पूर्ण रुंदी व्यापण्यासाठी */
+  box-sizing: border-box; /* पॅडिंगला आतमध्ये मोजण्यासाठी */
 }
 
 .upi-input-field input {
-  width: 100%;
-  padding: 10px;
+  width: 100%; /* पॅरेंट div नुसार रुंदी सेट होईल */
+  padding: 12px;
   border: 1px solid var(--border-color);
   border-radius: 6px;
   outline: none;
+  font-size: 0.95rem;
+  box-sizing: border-box; /* महत्त्वाचे: यामुळे इनपुट बॉक्स बॉर्डरच्या बाहेर जात नाही */
 }
-
 /* Card Inputs */
 .card-input-container {
   display: flex;
