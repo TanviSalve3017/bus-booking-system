@@ -70,27 +70,23 @@ const PaymentSelection = () => {
     setIsProcessing(true);
 
     try {
+        // ✅ पेलोड फिक्स: सर्व कीज (Keys) बॅकेंडच्या अपेक्षेप्रमाणे आहेत
         const payload = {
-  bookingDetails: {
-    bus_id: bus_id || busId,
-    user_id: user?.user_id || user?.id || 1,
+            bookingDetails: {
+                busId: busId || bus_id,
+                user_id: user?.user_id || user?.id || 1,
+                fullName: fullName || "Guest User",
+                email: email || "guest@test.com",
+                mobile: mobile || "0000000000",
+                passengers: passengers || [], 
+                seats: (selectedSeats && selectedSeats.length > 0) ? selectedSeats : ["1A"],
+                totalAmount: totalAmount || 0, 
+                travelDate: travelDate || new Date().toISOString().split("T")[0],
+                razorpayOrderId: "DIRECT_ORD_" + Date.now(),
+                razorpayPaymentId: "DIRECT_PAY_" + Date.now()
+            }
+        };
 
-    passenger_name: fullName || "Guest User",
-    passenger_email: email || "guest@test.com",
-    passenger_mobile: mobile || "0000000000",
-
-    passengers: passengers || [],
-
-    seats: selectedSeats?.length ? selectedSeats : ["1A"],
-    total_amount: totalAmount || 0,
-
-    travel_date: travelDate || new Date().toISOString().split("T")[0],
-
-    razorpayOrderId: "DIRECT_ORD_" + Date.now(),
-    razorpayPaymentId: "DIRECT_PAY_" + Date.now()
-  }
-};
-        // ✅ २. इथे API_BASE_URL वापरला आहे
         const response = await axios.post(`${API_BASE_URL}/api/verify-payment`, payload);
 
         if (response.data.success) {
@@ -99,14 +95,14 @@ const PaymentSelection = () => {
                 navigate("/ticket-success", { 
                     state: { 
                         bookingDetails: { 
-                          from, 
-                          to, 
-                          busName, 
-                          selectedSeats, 
-                          totalAmount, 
-                          travelDate, 
-                          passengers: passengers,
-                          pnr: response.data.pnr 
+                            from, 
+                            to, 
+                            busName, 
+                            selectedSeats, 
+                            totalAmount, 
+                            travelDate, 
+                            passengers: passengers,
+                            pnr: response.data.pnr 
                         } 
                     } 
                 });

@@ -66,7 +66,7 @@ const PaymentPage = () => {
     setPassengers(updated);
   };
 
-  // 🔥 NEW: Debugging (IMPORTANT for your 400 error)
+  // 🔥 NEW: Debugging
   useEffect(() => {
     console.log("🧪 Seats:", finalSeats);
     console.log("🧪 Passengers:", passengers);
@@ -85,61 +85,57 @@ const PaymentPage = () => {
   }
 
   const handlePayment = async () => {
+    // १. व्हॅलिडेशन: कॉन्टॅक्ट माहिती
     if (!contactInfo.fullName || !contactInfo.email || !contactInfo.mobile) {
       alert("कृपया सर्व माहिती भरा!");
       return;
     }
 
+    // २. व्हॅलिडेशन: बस आणि सीट माहिती
     if (!busId) {
       alert("Bus ID missing!");
-      console.error("❌ busId missing", bookingDetails);
       return;
     }
 
     if (!finalSeats || finalSeats.length === 0) {
       alert("No seats selected!");
-      console.error("❌ seats missing", bookingDetails);
       return;
     }
 
+    // ३. व्हॅलिडेशन: प्रत्येक पॅसेंजरची माहिती
     for (let i = 0; i < passengers.length; i++) {
       const p = passengers[i];
-
       if (!p.name || !p.age) {
-        alert(`Passenger ${i + 1} details incomplete`);
+        alert(`पॅसेंजर ${i + 1} ची माहिती अपूर्ण आहे!`);
         return;
       }
-
       if (p.age < 1 || p.age > 100) {
-        alert(`Invalid age for Passenger ${i + 1}`);
+        alert(`पॅसेंजर ${i + 1} चे वय अयोग्य आहे!`);
         return;
       }
     }
 
-    // 🔥 NEW: normalize data (IMPORTANT FIX)
+    // ४. डेटा एकत्र करणे (Normalize Data)
     const finalBookingData = {
-      bookingDetails: {
-        busId: busId,
-        seats: finalSeats,
-        selectedSeats: finalSeats,   // 🔥 fix mismatch
-        fullName: contactInfo.fullName,
-        email: contactInfo.email,
-        mobile: contactInfo.mobile,
-        totalAmount: displayAmount,
-        travelDate: travelDate || bookingDetails.travel_date || null,
-
-        passengers: passengers,
-        from: from || "N/A",
-        to: to || "N/A",
-        busName: busName || "N/A"
-      }
+      busId: busId,
+      seats: finalSeats,
+      selectedSeats: finalSeats,
+      fullName: contactInfo.fullName,
+      email: contactInfo.email,
+      mobile: contactInfo.mobile,
+      totalAmount: displayAmount,
+      travelDate: travelDate || bookingDetails.travel_date || null,
+      passengers: passengers, 
+      from: from || "N/A",
+      to: to || "N/A",
+      busName: busName || "N/A"
     };
 
-    console.log("🚀 FINAL DATA SENT TO NEXT PAGE:", finalBookingData);
+    console.log("🚀 FINAL DATA SENT TO PAYMENT SELECTION:", finalBookingData);
 
-    // 🔥 FIX: wrap inside bookingDetails
+    // ५. नेव्हिगेशन (फक्त एकदाच कॉल केला आहे)
     navigate("/payment-selection", { 
-      state: finalBookingData
+      state: { bookingDetails: finalBookingData } 
     });
   };
 
@@ -186,12 +182,13 @@ const PaymentPage = () => {
           <h3>Passenger Details</h3>
 
           {passengers.map((p, index) => (
-            <div key={index} style={{ marginBottom: "15px" }}>
+            <div key={index} className="passenger-input-row" style={{ marginBottom: "15px", borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
               <p><strong>Seat: {p.seat}</strong></p>
 
               <input
                 type="text"
                 placeholder="Name"
+                className="p-input"
                 value={p.name}
                 onChange={(e) => updatePassenger(index, "name", e.target.value)}
               />
@@ -199,16 +196,19 @@ const PaymentPage = () => {
               <input
                 type="number"
                 placeholder="Age"
+                className="p-input"
                 value={p.age}
                 onChange={(e) => updatePassenger(index, "age", e.target.value)}
               />
 
               <select
+                className="p-input"
                 value={p.gender}
                 onChange={(e) => updatePassenger(index, "gender", e.target.value)}
               >
-                <option>Male</option>
-                <option>Female</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
               </select>
             </div>
           ))}
