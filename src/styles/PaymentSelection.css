@@ -1,201 +1,68 @@
-/* पूर्ण पेजचा बॅकग्राउंड आणि फॉन्ट */
-.real-pg-wrapper { 
-  background: #f5f5f5; 
-  min-height: 100vh; 
-  display: flex; 
-  justify-content: center; 
-  padding: 20px; 
-  font-family: 'Inter', sans-serif; 
+.payment-page {
+  padding: 20px;
+  background: linear-gradient(#dfe9f3, #fff);
+  min-height: 100vh;
 }
 
-.real-pg-container { 
-  max-width: 450px; 
-  width: 100%; 
-}
-
-.lang-header { 
-  text-align: right; 
-  margin-bottom: 10px; 
-}
-
-/* जर्नी समरी बॉक्स */
-.summary-box { 
-  background: #fff; 
-  border: 1px solid #ddd; 
-  border-radius: 8px; 
-  padding: 15px; 
-  margin-bottom: 20px; 
-}
-
-.summary-route { 
-  font-size: 16px; 
-  border-bottom: 1px solid #eee; 
-  padding-bottom: 8px; 
-  margin-bottom: 10px; 
-}
-
-.summary-grid { 
-  display: flex; 
-  justify-content: space-between; 
-  align-items: flex-end; 
-}
-
-.left-info p { 
-  margin: 2px 0; 
-  color: #666; 
-  font-size: 13px; 
-}
-
-/* पेमेंट मेथड्सचे टायटल */
-.payment-title-text { 
-  font-size: 14px; 
-  margin-bottom: 10px; 
-  color: #333; 
-}
-
-.method-box { 
-  background: #fff; 
-  border: 1px solid #ddd; 
-  border-radius: 6px; 
-  margin-bottom: 15px; 
-  transition: 0.3s; 
-  overflow: hidden;
-}
-
-.method-label { 
-  background: #fafafa; 
-  padding: 10px 15px; 
-  font-size: 13px; 
-  font-weight: bold; 
-  border-bottom: 1px solid #eee; 
-}
-
-/* UPI बटण ग्रुप */
-.upi-button-group { 
-  display: flex; 
-  gap: 8px; 
-  padding: 15px; 
-}
-
-.upi-item { 
-  flex: 1; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  gap: 6px; 
-  padding: 10px; 
-  border: 1px solid #ddd; 
-  background: #fff; 
-  border-radius: 6px; 
-  font-size: 12px; 
-  cursor: pointer; 
-}
-
-/* --- UPI ID बॉक्स मोठा करण्यासाठी बदल (येथे बदल केला आहे) --- */
-.upi-input-field {
-  padding: 0 15px 15px 15px; /* डाव्या-उजव्या बाजूने पॅडिंग दिली */
+.top-bar {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
 }
 
-.upi-input-field input {
-  width: 100%; /* पूर्ण रुंदी */
-  padding: 14px; /* बॉक्सची उंची वाढवली */
-  border: 1.5px solid #2d8a4e; /* हिरवी बॉर्डर */
-  border-radius: 6px;
-  font-size: 15px;
-  outline: none;
-  box-sizing: border-box; /* पॅडिंगमुळे बॉक्स बाहेर जाणार नाही */
-}
-/* ------------------------------------------------------------------- */
-
-.active-btn { 
-  border-color: #2d8a4e !important; 
-  background: #f0fdf4 !important; 
+.steps span {
+  margin: 0 10px;
+  opacity: 0.5;
 }
 
-/* कार्ड इनपुट्स */
-.card-input-container { 
-  padding: 15px; 
+.steps .active {
+  font-weight: bold;
+  opacity: 1;
 }
 
-.full-input input, .split-input input { 
-  width: 100%; 
-  padding: 12px; 
-  border: 1px solid #ddd; 
-  border-radius: 4px; 
-  box-sizing: border-box; 
+.payment-container {
+  display: flex;
+  gap: 30px;
+  margin-top: 30px;
 }
 
-.split-input { 
-  display: grid; 
-  grid-template-columns: 1fr 1fr; 
-  gap: 10px; 
-  margin-top: 10px; 
+.payment-left {
+  flex: 2;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
 }
 
-.card-support-icons { 
-  margin-top: 10px; 
-  display: flex; 
-  gap: 10px; 
-  opacity: 0.7; 
+.payment-right {
+  flex: 1;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
 }
 
-/* नेट बँकिंग */
-.nb-body { 
-  padding: 15px; 
-  display: flex; 
-  align-items: center; 
-  gap: 10px; 
+.tabs button {
+  margin-right: 10px;
 }
 
-.nb-select { 
-  flex: 1; 
-  padding: 10px; 
-  border: 1px solid #ddd; 
-  border-radius: 4px; 
+.card-box input {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
 }
 
-/* वॉलेट लिस्ट */
-.wallet-list { 
-  padding: 5px 15px; 
+.row {
+  display: flex;
+  gap: 10px;
 }
 
-.wallet-option { 
-  display: flex; 
-  align-items: center; 
-  gap: 12px; 
-  padding: 12px 0; 
-  border-bottom: 1px solid #f9f9f9; 
-  font-size: 13px; 
-  cursor: pointer; 
+.pay-btn {
+  width: 100%;
+  padding: 12px;
+  background: red;
+  color: white;
+  border: none;
+  cursor: pointer;
 }
 
-/* पेमेंट बटण */
-.payment-proceed-btn { 
-  width: 100%; 
-  padding: 15px; 
-  background: #2d8a4e; 
-  color: #fff; 
-  border: none; 
-  border-radius: 6px; 
-  font-size: 16px; 
-  font-weight: bold; 
-  cursor: pointer; 
-  margin-top: 10px; 
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.selected-box { 
-  border-color: #2d8a4e !important; 
-}
-
-/* इनपुट ॲनिमेशन */
-.animated-fade {
-  animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+.secure {
+  color: green;
 }
