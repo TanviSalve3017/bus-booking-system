@@ -19,13 +19,14 @@ const TicketSuccess = () => {
   // 🔥 AUTO REDIRECT SAFETY (NEW)
   useEffect(() => {
     if (!bookingDetails) {
-      setTimeout(() => navigate("/"), 3000);
+      const timer = setTimeout(() => navigate("/"), 3000);
+      return () => clearTimeout(timer);
     }
   }, [bookingDetails, navigate]);
 
   // 🔥 SAFE DATA NORMALIZATION
   const safePassengers = bookingDetails?.passengers || [];
-  const safeSeats = bookingDetails?.selectedSeats || [];
+  const safeSeats = bookingDetails?.selectedSeats || bookingDetails?.seats || [];
   const safeFrom = bookingDetails?.from || "N/A";
   const safeTo = bookingDetails?.to || "N/A";
   const safeBus = bookingDetails?.busName || "Bus Not Available";
@@ -36,13 +37,13 @@ const TicketSuccess = () => {
   const safePNR = bookingDetails?.pnr || "TEMP" + Date.now();
 
   // 🔥 Dynamic time
-  const departureTime = "10:00 PM";
-  const arrivalTime = "06:00 AM";
+  const departureTime = bookingDetails?.departureTime || "10:00 PM";
+  const arrivalTime = bookingDetails?.arrivalTime || "06:00 AM";
 
   // 🔥 Gender formatter
   const formatGender = (g) => {
     if (!g) return "M";
-    const val = g.toLowerCase();
+    const val = g.toString().toLowerCase();
     if (val === "male" || val === "m") return "M";
     if (val === "female" || val === "f") return "F";
     return "M";
@@ -51,12 +52,12 @@ const TicketSuccess = () => {
   // 🔥 Passenger fallback
   const finalPassengerList = safePassengers.length > 0 
     ? safePassengers 
-    : safeSeats.map((seat, index) => ({
+    : (safeSeats.length > 0 ? safeSeats.map((seat, index) => ({
         name: `Passenger ${index + 1}`,
         age: "--",
         gender: "M",
         seat: seat
-      }));
+      })) : []);
 
   // 🔥 TOTAL PASSENGER COUNT (NEW)
   const totalPassengers = finalPassengerList.length;
@@ -105,7 +106,7 @@ const TicketSuccess = () => {
     }
   };
 
-  const t = translations[lang];
+  const t = translations[lang] || translations.en;
 
   if (!bookingDetails) {
     return (
@@ -119,21 +120,28 @@ const TicketSuccess = () => {
   // 🔥 IMPROVED PDF (MULTI PAGE SUPPORT)
   const handleDownloadPDF = async () => {
     const element = ticketRef.current;
-
-    const canvas = await html2canvas(element, { scale: 2 });
+    // html2canvas वापरून तिकीटाचा फोटो काढणे
+    const canvas = await html2canvas(element, { 
+      scale: 2,
+      useCORS: true, // QR कोड इमेजसाठी महत्वाचे
+      logging: false 
+    });
+    
     const imgData = canvas.toDataURL("image/png");
-
     const pdf = new jsPDF("p", "mm", "a4");
-    const imgWidth = 210;
-    const pageHeight = 295;
-
+    
+    const imgWidth = 210; // A4 width
+    const pageHeight = 295; // A4 height
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
     let heightLeft = imgHeight;
     let position = 0;
 
+    // पहिली पेज जोडणे
     pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
     heightLeft -= pageHeight;
 
+    // जर तिकीट मोठे असेल तर नवीन पेजेस जोडणे
     while (heightLeft > 0) {
       position = heightLeft - imgHeight;
       pdf.addPage();
@@ -219,8 +227,7 @@ const TicketSuccess = () => {
           </table>
         </div>
 
-        {/* 🔥 NEW EXTRA INFO */}
-        <div style={{ marginTop: "10px", textAlign: "center" }}>
+        <div style={{ marginTop: "15px", textAlign: "center", borderTop: "1px dashed #eee", paddingTop: "10px" }}>
           <strong>{t.passengers}: {totalPassengers}</strong>
         </div>
 
@@ -252,10 +259,10 @@ const TicketSuccess = () => {
       </div>
 
       <div className="action-buttons-fixed">
-        <button onClick={handleDownloadPDF}>
+        <button className="download-btn-pdf" onClick={handleDownloadPDF}>
           {t.btnPdf}
         </button>
-        <button onClick={() => navigate("/")}>
+        <button className="back-home-btn" onClick={() => navigate("/")}>
           {t.btnHome}
         </button>
       </div>

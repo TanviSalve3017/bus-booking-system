@@ -26,8 +26,9 @@ const BusList = () => {
   const from = queryParams.get("from") || "";
   const to = queryParams.get("to") || "";
   
-  // 🔥 बदल १: URL मधून आलेली तारीख घेतली, जर नसेल तर आजची तारीख डिफॉल्ट ठेवली (हार्डकोडेड १० मार्च काढली)
-  const travelDate = queryParams.get("date") || new Date().toISOString().split('T')[0];
+  // 🔥 तारीख काढताना ती स्वच्छ (YYYY-MM-DD) फॉरमॅटमध्ये असल्याची खात्री केली
+  const rawDate = queryParams.get("date") || new Date().toISOString().split('T')[0];
+  const travelDate = rawDate.split('T')[0];
 
   const toggleAmenity = (am) => {
     setSelectedAmenities(prev => 
@@ -35,9 +36,9 @@ const BusList = () => {
     );
   };
 
-  // ✅ १. fetchBuses फंक्शन - हे आता फक्त आवश्यक असेल तेव्हाच कॉल होईल
+  // ✅ १. fetchBuses फंक्शन - हे आता फिल्टर आणि तारखेनुसार डेटा आणेल
   const fetchBuses = useCallback(async () => {
-    if (!from || !to) return; // जर ठिकाण नसेल तर कॉल करू नका
+    if (!from || !to) return; 
     
     setLoading(true);
     try {
@@ -45,7 +46,7 @@ const BusList = () => {
         params: { 
           from: from.trim().toLowerCase(), 
           to: to.trim().toLowerCase(), 
-          date: travelDate, // 🔥 बदल २: बॅकएंडला 'date' पॅरामीटर पाठवला जेणेकरून फिल्टर काम करेल
+          date: travelDate, 
           busType: busType || undefined, 
           maxPrice: priceRange, 
           operator: operator || undefined, 
@@ -53,17 +54,15 @@ const BusList = () => {
         }
       });
       
-      // ✅ २. थेट नवीन डेटा सेट करा, ज्यामुळे ड्युप्लिकेट होणार नाहीत
       setBuses(res.data);
     } catch (e) { 
       console.error("Fetch error details:", e.response?.data || e.message); 
     } finally {
       setLoading(false);
     }
-    // 🔥 बदल ३: travelDate ला dependency list मध्ये ऍड केले
   }, [from, to, travelDate, busType, priceRange, operator, selectedAmenities]);
 
-  // ✅ ३. फक्त From, To आणि travelDate बदलल्यावरच सुरुवातीला डेटा आणा
+  // ✅ २. From, To आणि travelDate बदलल्यावर आपोआप डेटा आणा
   useEffect(() => { 
     fetchBuses(); 
   }, [from, to, travelDate, fetchBuses]); 
@@ -97,12 +96,17 @@ const BusList = () => {
 
   const onBookingConfirm = (data) => {
     const selectedBus = buses.find(b => b.bus_id === selectedBusId);
+    
+    // ✅ userId मिळवला (डेटाबेसमध्ये रेकॉर्ड सेव्ह होण्यासाठी आवश्यक)
+    const userId = localStorage.getItem("userId") || 1;
+
     const completeData = {
+      userId: userId,
       busId: selectedBusId,
       busName: selectedBus?.operator_name || "Luxury Travels",
       from: from,
       to: to,
-      travelDate: travelDate, // ✅ ही तारीख आता पेमेंट पेजवर बरोबर जाईल
+      travelDate: travelDate, 
       seats: selectedSeats,
       totalFare: data.totalAmount, 
       totalAmount: data.totalAmount, 
@@ -135,7 +139,7 @@ const BusList = () => {
                   </label>
                 ))}
               </div>
-              <span onClick={() => setBusType("")} className="clear-text" style={{cursor: "pointer", color: "#d84e55"}}>Clear All</span>
+              <span onClick={() => setBusType("")} className="clear-text" style={{cursor: "pointer", color: "#d84e55", fontSize: "0.8rem"}}>Clear All</span>
             </div>
 
             <div className="filter-section">
@@ -172,16 +176,35 @@ const BusList = () => {
                 <option value="Chintamani Travels">Chintamani Travels</option>
               </select>
             </div>
-            {/* ✅ Apply Filters बटण दाबल्यावरच नवीन डेटा येईल */}
+
+            <div className="filter-section">
+              <p className="section-label">Change Travel Date</p>
+              <input 
+                type="date" 
+                className="operator-select" 
+                value={travelDate} 
+                onChange={(e) => {
+                  navigate(`?from=${from}&to=${to}&date=${e.target.value}`);
+                }} 
+              />
+            </div>
+
             <button className="apply-btn-red" onClick={fetchBuses}>Apply Filters</button>
           </aside>
 
           <main className="bus-results-container">
             <h2 className="route-title">{from.toUpperCase()} to {to.toUpperCase()}</h2>
-            <p className="selected-date-display">Journey Date: {travelDate}</p> {/* ✅ युजरला तारीख दिसावी म्हणून */}
-            {loading ? ( <p className="status-msg">Finding buses...</p> ) : (
+            <div className="journey-summary-bar">
+               <span>Journey Date: <strong>{travelDate}</strong></span>
+               <span>Buses Found: <strong>{buses.length}</strong></span>
+            </div>
+
+            {loading ? ( 
+              <div className="loading-container">
+                <p className="status-msg">Searching for best buses...</p> 
+              </div>
+            ) : (
               buses.length > 0 ? (
-                // ✅ ४. Key म्हणून bus.bus_id वापरला आहे जेणेकरून ड्युप्लिकेट रेंडर होणार नाहीत
                 buses.map((bus, index) => (
                   <div key={bus.bus_id || index} className="modern-bus-card-wrapper">
                     <div className="bus-card-main">
@@ -196,7 +219,6 @@ const BusList = () => {
                           </div>
                           <div className="arrow-divider">
                             <span>→</span>
-                            <small>Duration</small>
                           </div>
                           <div className="time-box">
                             <span className="time-main">{bus.arrival_time?.slice(0, 5)}</span>
@@ -205,7 +227,7 @@ const BusList = () => {
                         </div>
                         <div className="rating-row">
                           <span className="star-icons">⭐⭐⭐⭐</span>
-                          <span className="rating-num">{bus.rating}</span>
+                          <span className="rating-num">{bus.rating || "4.2"}</span>
                         </div>
                       </div>
                       <div className="bus-action-right">
@@ -242,7 +264,12 @@ const BusList = () => {
                     )}
                   </div>
                 ))
-              ) : ( <p className="status-msg">No buses found for this route on {travelDate}.</p> )
+              ) : ( 
+                <div className="no-buses-found">
+                  <p className="status-msg">क्षमस्व! या तारखेसाठी ({travelDate}) कोणतीही बस उपलब्ध नाही.</p>
+                  <p>कृपया दुसरी तारीख किंवा फिल्टर बदलून प्रयत्न करा.</p>
+                </div>
+              )
             )}
           </main>
         </>

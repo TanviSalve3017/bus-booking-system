@@ -25,9 +25,11 @@ const PaymentSelection = () => {
     from, 
     to, 
     selectedSeats, 
+    seats,             // कधीकधी पेमेंट पेजवरून 'seats' नावाने डेटा येतो
     travelDate,
     busId, 
     bus_id, 
+    userId,            // PaymentPage कडून येणारा userId
     fullName,
     email,
     mobile,
@@ -35,6 +37,11 @@ const PaymentSelection = () => {
   } = bookingData;
 
   const user = JSON.parse(localStorage.getItem("user"));
+  
+  // ✅ userId सुरक्षितपणे निवडणे
+  const finalUserId = userId || user?.user_id || user?.id || 1;
+  // ✅ Seats सुरक्षितपणे निवडणे
+  const finalSeats = (selectedSeats && selectedSeats.length > 0) ? selectedSeats : (seats || ["1A"]);
 
   const translations = {
     en: {
@@ -70,22 +77,24 @@ const PaymentSelection = () => {
     setIsProcessing(true);
 
     try {
-        // ✅ पेलोड फिक्स: सर्व कीज (Keys) बॅकेंडच्या अपेक्षेप्रमाणे आहेत
+        // ✅ पेलोड फिक्स: सर्व कीज (Keys) बॅकेंडच्या अपेक्षेप्रमाणे आणि डेटा सुरक्षिततेसह
         const payload = {
             bookingDetails: {
                 busId: busId || bus_id,
-                user_id: user?.user_id || user?.id || 1,
+                user_id: finalUserId,
                 fullName: fullName || "Guest User",
                 email: email || "guest@test.com",
                 mobile: mobile || "0000000000",
                 passengers: passengers || [], 
-                seats: (selectedSeats && selectedSeats.length > 0) ? selectedSeats : ["1A"],
+                seats: finalSeats,
                 totalAmount: totalAmount || 0, 
                 travelDate: travelDate || new Date().toISOString().split("T")[0],
                 razorpayOrderId: "DIRECT_ORD_" + Date.now(),
                 razorpayPaymentId: "DIRECT_PAY_" + Date.now()
             }
         };
+
+        console.log("🚀 SENDING DATA TO BACKEND:", payload);
 
         const response = await axios.post(`${API_BASE_URL}/api/verify-payment`, payload);
 
@@ -98,7 +107,7 @@ const PaymentSelection = () => {
                             from, 
                             to, 
                             busName, 
-                            selectedSeats, 
+                            selectedSeats: finalSeats, 
                             totalAmount, 
                             travelDate, 
                             passengers: passengers,
@@ -108,13 +117,13 @@ const PaymentSelection = () => {
                 });
             }, 2000);
         } else {
-            throw new Error("Database insertion failed");
+            throw new Error(response.data.message || "Database insertion failed");
         }
 
     } catch (error) {
         console.error("Booking Error:", error);
         setIsProcessing(false);
-        alert("तांत्रिक अडचण! डेटाबेसमध्ये बुकिंग सेव्ह होऊ शकले नाही.");
+        alert(lang === "mr" ? "तांत्रिक अडचण! डेटाबेसमध्ये बुकिंग सेव्ह होऊ शकले नाही." : "Technical Error! Could not save booking.");
     }
   };
 
@@ -144,7 +153,7 @@ const PaymentSelection = () => {
             <div className="left-info">
               <p>{t.date}: {travelDate || "Selected Date"}</p>
               <p>{t.bus}: {busName || "Not Specified"}</p>
-              <p>{t.seat}: {selectedSeats?.join(", ") || "None"}</p>
+              <p>{t.seat}: {finalSeats?.join(", ") || "None"}</p>
             </div>
             <div className="right-fare">
               <span>{t.fare}: <strong>₹{totalAmount || 0}</strong></span>
