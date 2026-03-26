@@ -1,218 +1,316 @@
-/* 🔥 MAIN WRAPPER */
+/* --- Professional Payment Selection Styles --- */
+
+:root {
+  --primary-color: #d84e55; /* Standard Bus Branding Red */
+  --secondary-color: #2d3436;
+  --success-color: #27ae60;
+  --bg-color: #f4f7f8;
+  --card-bg: #ffffff;
+  --border-color: #e0e0e0;
+  --text-main: #333;
+  --text-light: #777;
+  --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
 .real-pg-wrapper {
+  background-color: var(--bg-color);
   min-height: 100vh;
-  background: linear-gradient(135deg, #1e1e2f, #2c2c54);
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 20px;
-  font-family: "Segoe UI", sans-serif;
+  align-items: flex-start;
+  padding: 40px 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* 🔥 CONTAINER */
 .real-pg-container {
+  background: var(--card-bg);
   width: 100%;
-  max-width: 600px;
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 25px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  max-width: 500px;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
 }
 
-/* 🔥 LANGUAGE SELECT */
+/* Language Selector Header */
 .lang-header {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 10px;
-}
-
-.lang-header select {
-  padding: 5px 10px;
-  border-radius: 6px;
-}
-
-/* 🔥 SUMMARY BOX */
-.summary-box {
-  background: #f5f7ff;
-  border-radius: 10px;
-  padding: 15px;
   margin-bottom: 20px;
 }
 
+.lang-header select {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: #fff;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Booking Summary Box */
+.summary-box {
+  background: #fff9f9;
+  border-left: 5px solid var(--primary-color);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+}
+
 .summary-route {
-  font-size: 18px;
+  font-size: 1.2rem;
+  color: var(--secondary-color);
   margin-bottom: 10px;
+  border-bottom: 1px dashed #ccc;
+  padding-bottom: 5px;
 }
 
 .summary-grid {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .left-info p {
-  margin: 5px 0;
+  margin: 3px 0;
+  font-size: 0.9rem;
+  color: var(--text-light);
 }
 
 .right-fare {
-  font-size: 18px;
-  font-weight: bold;
+  text-align: right;
+  font-size: 1rem;
 }
 
-/* 🔥 TITLE */
+.right-fare strong {
+  display: block;
+  font-size: 1.4rem;
+  color: var(--primary-color);
+}
+
+/* Payment Methods Boxes */
 .payment-title-text {
-  margin-bottom: 15px;
+  margin: 20px 0 15px;
+  font-size: 1.1rem;
+  color: var(--secondary-color);
   font-weight: 600;
 }
 
-/* 🔥 METHOD BOX */
 .method-box {
-  border: 2px solid #ddd;
+  border: 2px solid var(--border-color);
   border-radius: 10px;
   padding: 15px;
   margin-bottom: 15px;
-  transition: 0.3s;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
 }
 
 .method-box:hover {
-  border-color: #6c63ff;
+  border-color: #b2bec3;
 }
 
 .selected-box {
-  border-color: #6c63ff;
-  background: #f0f0ff;
+  border-color: var(--primary-color) !important;
+  background-color: #fffafa;
 }
 
-/* 🔥 METHOD LABEL */
 .method-label {
   font-weight: 600;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  color: var(--secondary-color);
 }
 
-/* 🔥 UPI BUTTONS */
+/* UPI Group Styles */
 .upi-button-group {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .upi-item {
   flex: 1;
-  padding: 8px;
-  border: none;
-  border-radius: 6px;
-  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: 0.2s;
-}
-
-.upi-item:hover {
-  background: #ddd;
+  transition: var(--transition);
 }
 
 .active-btn {
-  background: #6c63ff;
-  color: white;
+  background: #fdf2f2 !important;
+  border-color: var(--primary-color) !important;
+  font-weight: bold;
 }
 
-/* 🔥 INPUT */
-input, select {
+.upi-input-field {
+  margin-top: 15px;
+}
+
+.upi-input-field input {
   width: 100%;
   padding: 10px;
-  margin-top: 5px;
+  border: 1px solid var(--border-color);
   border-radius: 6px;
-  border: 1px solid #ccc;
+  outline: none;
 }
 
-/* 🔥 CARD */
+/* Card Inputs */
 .card-input-container {
-  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-input-container input {
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  outline: none;
+  font-size: 0.95rem;
 }
 
 .split-input {
   display: flex;
   gap: 10px;
-  margin-top: 10px;
 }
 
-/* 🔥 BANK */
+.split-input input {
+  width: 50%;
+}
+
+.card-support-icons {
+  display: flex;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+/* Netbanking & Wallet */
 .nb-body {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
-/* 🔥 WALLET */
+.nb-select {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
 .wallet-list {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 10px;
 }
 
 .wallet-option {
-  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 8px;
+  border: 1px solid var(--border-color);
   border-radius: 6px;
-  background: #eee;
-  text-align: center;
+  font-size: 0.85rem;
   cursor: pointer;
 }
 
 .active-wallet {
-  background: #6c63ff;
-  color: white;
+  border-color: var(--primary-color);
+  background-color: #fffafa;
 }
 
-/* 🔥 BUTTON */
+/* Proceed Button */
 .payment-proceed-btn {
   width: 100%;
-  padding: 12px;
-  background: #6c63ff;
-  color: white;
+  padding: 16px;
+  background-color: var(--primary-color);
+  color: #fff;
   border: none;
-  border-radius: 10px;
-  font-size: 16px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
   cursor: pointer;
-  transition: 0.3s;
+  margin-top: 25px;
+  box-shadow: 0 4px 10px rgba(216, 78, 85, 0.3);
+  transition: var(--transition);
 }
 
 .payment-proceed-btn:hover {
-  background: #574fd6;
+  background-color: #c0392b;
+  transform: translateY(-2px);
 }
 
-/* 🔥 LOADER */
+.payment-proceed-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Loader Overlay */
 .payment-loader-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(255, 255, 255, 0.9);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: 1000;
 }
 
 .loader-box {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
   text-align: center;
 }
 
-/* 🔥 SPINNER */
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #ccc;
-  border-top: 4px solid #6c63ff;
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid var(--primary-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin: auto;
-  margin-bottom: 10px;
+  margin: 0 auto 15px;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animated-fade {
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .real-pg-container {
+    padding: 20px;
+  }
+  .summary-grid {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .right-fare {
+    text-align: left;
+    margin-top: 10px;
+  }
+  .wallet-list {
+    grid-template-columns: 1fr;
   }
 }
