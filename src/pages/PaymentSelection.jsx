@@ -71,21 +71,24 @@ const PaymentSelection = () => {
 
     try {
         const payload = {
-    bookingDetails: {
-        bus_id: bus_id || busId || 1, 
-        user_id: user?.user_id || user?.id || 1,
-        passenger_name: fullName || "Guest User",
-        passenger_email: email || "guest@test.com",
-        passenger_mobile: mobile || "0000000000",
-        seats: selectedSeats || [],
-        total_amount: totalAmount,
+  bookingDetails: {
+    bus_id: bus_id || busId,
+    user_id: user?.user_id || user?.id || 1,
 
-        // 🔥 THIS LINE FIXES EVERYTHING
-        travel_date: travelDate,
+    passenger_name: fullName || "Guest User",
+    passenger_email: email || "guest@test.com",
+    passenger_mobile: mobile || "0000000000",
 
-        razorpayOrderId: "DIRECT_ORD_" + Date.now(),
-        razorpayPaymentId: "DIRECT_PAY_" + Date.now()
-    }
+    passengers: passengers || [],
+
+    seats: selectedSeats?.length ? selectedSeats : ["1A"],
+    total_amount: totalAmount || 0,
+
+    travel_date: travelDate || new Date().toISOString().split("T")[0],
+
+    razorpayOrderId: "DIRECT_ORD_" + Date.now(),
+    razorpayPaymentId: "DIRECT_PAY_" + Date.now()
+  }
 };
         // ✅ २. इथे API_BASE_URL वापरला आहे
         const response = await axios.post(`${API_BASE_URL}/api/verify-payment`, payload);
