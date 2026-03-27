@@ -1,30 +1,21 @@
 # Online Bus Reservation System
 
-Ha ek Full-Stack project aahe jo modern web technologies vaprun banvla aahe.
+Ha ek Full-Stack project aahe jo Vite (Frontend) aani Node.js (Backend) vaprun banvla aahe.
 
 ## Tech Stack
 - **Frontend:** React + Vite
 - **Backend:** Node.js + Express.js
-- **Database:** MySQL (Hosted on Aiven)
+- **Database:** MySQL (Aiven Cloud)
 
-## Setup & Installation
+## Setup & Running Instructions
 
-Project tumchya computer var run karnyathi ya steps follow kara:
-
-### 1. Project Clone kara
-Terminal madhe repo clone kara:
-`git clone <repository-link>`
-
-### 2. Dependencies Install kara
-Frontend aani Backend donhi kade khali dilaela command taka:
+### 1. Dependencies Install kara:
+Pratyek folder madhe (Frontend aani Backend) ja aani ha command taka:
 `npm install`
 
-### 3. Execution (Project chalu kara)
-
-**Frontend sathi:**
+### 2. Frontend shuru kara:
 `npm run dev`
-*(Hya nantat tumhala `http://localhost:5173/` hi link milel)*
+*(Hi link open kara: http://localhost:5173/)*
 
-**Backend sathi:**
+### 3. Backend shuru kara:
 `node backend.js`
-*(Hya nantat tumcha database sobat connection suru hoil)*
