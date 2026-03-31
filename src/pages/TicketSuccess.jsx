@@ -103,6 +103,26 @@ const TicketSuccess = () => {
       tc3: "सामानाची जबाबदारी नाही.",
       btnPdf: "PDF डाउनलोड करा",
       btnHome: "होम"
+    },
+    hi: {
+      success: "बुकिंग सफल रही!",
+      subText: "आपका टिकट सफलतापूर्वक बुक हो गया है।",
+      pnr: "पीएनआर नंबर",
+      busType: "प्रीमियम एसी स्लीपर | 2+1",
+      passName: "यात्री का नाम",
+      seat: "सीट",
+      ageSex: "आयु/लिंग",
+      date: "यात्रा की तिथि",
+      status: "स्थिति",
+      confirmed: "पुष्टि की गई",
+      total: "कुल किराया",
+      passengers: "कुल यात्री",
+      tc: "नियम और शर्तें",
+      tc1: "यात्रा के दौरान वैध सरकारी आईडी साथ रखें।",
+      tc2: "प्रस्थान से 15 मिनट पहले रिपोर्ट करें।",
+      tc3: "खोए हुए सामान के लिए कंपनी जिम्मेदार नहीं है।",
+      btnPdf: "टिकट डाउनलोड करें (PDF)",
+      btnHome: "होम"
     }
   };
 
@@ -158,6 +178,7 @@ const TicketSuccess = () => {
       <div className="lang-selector-ticket" style={{ marginBottom: '20px' }}>
         <select value={lang} onChange={(e) => setLang(e.target.value)}>
           <option value="en">English</option>
+          <option value="hi">हिन्दी</option> {/* हिंदी ऑप्शन जोडला */}
           <option value="mr">मराठी</option>
         </select>
       </div>
