@@ -61,14 +61,8 @@ const BookingSummary = ({ selectedSeats = [], price = 0, onConfirm, from, to, bu
       alert(t('accept_terms_alert') || "कृपया नियम आणि अटी मान्य करा!");
       return;
     }
-
-    // --- नवीन FEMALE LOGIC सुरुवात (Line 74 च्या आसपास) ---
-    // आपण निवडलेल्या सीट्सपैकी कोणत्या महिलांसाठी आहेत ते शोधूया
-    // (टीप: बसच्या डेटाबेसमधून 'reserved_for' माहिती आपण 'passengers' सोबत पडताळून पाहू शकतो)
-    
+ 
     const maleOnFemaleSeat = passengers.some(p => {
-        // जर प्रवाशाचे लिंग 'M' (Male) असेल...
-        // आणि त्याने निवडलेली सीट 'L1', 'L2', '1A' इ. पैकी असेल जी महिलांसाठी राखीव आहे
         const femaleReservedSeats = ['L1', 'L2', '1A', '1B', 'L12', '2A']; // तुझ्या SQL नुसार
         return p.gender === 'M' && femaleReservedSeats.includes(p.seat);
     });
