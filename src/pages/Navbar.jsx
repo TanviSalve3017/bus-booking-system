@@ -12,7 +12,7 @@ const Navbar = () => {
     // लॉगआउट फंक्शन
     const handleLogout = () => {
         localStorage.removeItem("user");
-        alert("तुम्ही यशस्वीरित्या लॉगआउट झाला आहात!");
+        alert("You have been successfully logged out!");
         navigate("/login");
         window.location.reload();
     };
