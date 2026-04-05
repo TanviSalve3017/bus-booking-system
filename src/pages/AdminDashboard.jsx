@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+// ✅ १. तुझी Render बॅकएंड लिंक
 const API_BASE_URL = "https://bus-booking-backend-zd3f.onrender.com";
 
 const AdminDashboard = () => {
@@ -34,13 +35,14 @@ const AdminDashboard = () => {
 
   const fetchAdminData = async () => {
     try {
-      const busRes = await axios.get("http://localhost:5001/api/buses");
+      // ✅ localhost बदलून API_BASE_URL वापरले आहे
+      const busRes = await axios.get(`${API_BASE_URL}/api/buses`);
       setBuses(busRes.data);
 
-      const bookingRes = await axios.get("http://localhost:5001/api/admin-stats");
+      const bookingRes = await axios.get(`${API_BASE_URL}/api/admin-stats`);
       setStats(bookingRes.data);
 
-      const recentRes = await axios.get("http://localhost:5001/api/admin/recent-bookings");
+      const recentRes = await axios.get(`${API_BASE_URL}/api/admin/recent-bookings`);
       setRecentBookings(recentRes.data);
       
       setLoading(false);
@@ -53,7 +55,8 @@ const AdminDashboard = () => {
   // ✅ ३. युजर्स फेच करण्याचे लॉजिक
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:5001/api/admin/users");
+      // ✅ localhost बदलून API_BASE_URL वापरले आहे
+      const res = await axios.get(`${API_BASE_URL}/api/admin/users`);
       setUsers(res.data);
     } catch (err) {
       console.error("Error fetching users:", err);
@@ -65,7 +68,8 @@ const AdminDashboard = () => {
     const action = currentStatus ? "unblock" : "block";
     if (window.confirm(`तुम्हाला खात्री आहे की या युजरला ${action} करायचे आहे?`)) {
       try {
-        await axios.put(`http://localhost:5001/api/admin/users/toggle-block/${userId}`, {
+        // ✅ localhost बदलून API_BASE_URL वापरले आहे
+        await axios.put(`${API_BASE_URL}/api/admin/users/toggle-block/${userId}`, {
           is_blocked: !currentStatus
         });
         alert(`युजर यशस्वीरित्या ${action} झाला!`);
@@ -79,7 +83,8 @@ const AdminDashboard = () => {
   const handleAddBus = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5001/api/add-bus", newBus);
+      // ✅ localhost बदलून API_BASE_URL वापरले आहे
+      const response = await axios.post(`${API_BASE_URL}/api/add-bus`, newBus);
       if (response.data) {
         alert("The bus was successfully added! 🚀");
         setShowModal(false); 
@@ -95,7 +100,8 @@ const AdminDashboard = () => {
   const handleDeleteBus = async (id) => {
     if (window.confirm("Are you sure you want to delete this bus?")) {
       try {
-        await axios.delete(`http://localhost:5001/api/buses/${id}`);
+        // ✅ localhost बदलून API_BASE_URL वापरले आहे
+        await axios.delete(`${API_BASE_URL}/api/buses/${id}`);
         alert("The bus was successfully deleted!");
         fetchAdminData();
       } catch (err) {
@@ -104,7 +110,7 @@ const AdminDashboard = () => {
     }
   };
 
-  if (loading) return <div style={{ textAlign: "center", padding: "50px" }}>Loading data...</div>;
+  if (loading) return <div style={{ textAlign: "center", padding: "50px" }}>Loading data from Render... (Please wait 1 min)</div>;
 
   return (
     <div style={containerStyle}>
