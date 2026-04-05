@@ -81,6 +81,7 @@ const PaymentSelection = () => {
         const payload = {
             bookingDetails: {
                 busId: busId || bus_id,
+                userId: finalUserId,
                 user_id: finalUserId,
                 fullName: fullName || "Guest User",
                 email: email || "guest@test.com",

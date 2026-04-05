@@ -40,13 +40,13 @@ const Login = () => {
                 navigate("/");
                 window.location.reload(); 
             } else {
-                alert(t('login_failed') || "लॉगिन अयशस्वी!");
+                alert(t('login_failed') || "Login failed!");
             }
         } catch (err) {
             console.error("🚨 Login Error:", err);
             
             // जर सर्व्हरवरून मेसेज आला असेल तर तो दाखवा
-            const errorMsg = err.response?.data?.message || "ईमेल किंवा पासवर्ड चुकीचा आहे!";
+            const errorMsg = err.response?.data?.message || "Incorrect email or password!";
             
             if (err.code === "ERR_NETWORK") {
                 alert("सर्व्हरशी संपर्क होऊ शकला नाही. रेंडर सर्व्हर झोपला असू शकतो (Spinning up), १ मिनिटाने पुन्हा प्रयत्न करा.");

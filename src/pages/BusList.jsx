@@ -87,7 +87,7 @@ const BusList = () => {
     setSelectedSeats(prev => {
       if (prev.includes(seatNumber)) return prev.filter(s => s !== seatNumber);
       if (prev.length >= 6) {
-        alert("भावा, एका वेळी फक्त ६ सीट्स बुक करता येतात!");
+        alert("Brother, only 6 seats can be booked at a time!");
         return prev;
       }
       return [...prev, seatNumber];
@@ -113,6 +113,7 @@ const BusList = () => {
       fullName: data.fullName,
       email: data.email,
       mobile: data.mobile,
+      gender: data.gender,
       boardingPoint: data.boardingPoint,
       droppingPoint: data.droppingPoint
     };
@@ -266,8 +267,8 @@ const BusList = () => {
                 ))
               ) : ( 
                 <div className="no-buses-found">
-                  <p className="status-msg">क्षमस्व! या तारखेसाठी ({travelDate}) कोणतीही बस उपलब्ध नाही.</p>
-                  <p>कृपया दुसरी तारीख किंवा फिल्टर बदलून प्रयत्न करा.</p>
+                  <p className="status-msg">Sorry! There are no buses available for this date ({travelDate}).</p>
+                  <p>Please try another date or change the filter.</p>
                 </div>
               )
             )}

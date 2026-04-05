@@ -69,20 +69,14 @@ const MyBookings = () => {
     // ✅ तारीख फिक्स करण्यासाठी सुधारित फंक्शन
     const formatDate = (dateStr) => {
         if (!dateStr) return "";
-        
-        // जर तारीख ISO String स्वरूपात असेल (उदा. 2026-03-24T00:00:00.000Z)
-        // तर फक्त तारीख (2026-03-24) वेगळी काढूया
         const cleanDate = dateStr.includes("T") ? dateStr.split("T")[0] : dateStr;
 
         if (cleanDate.includes("-")) {
             const parts = cleanDate.split("-");
-            // जर फॉरमॅट YYYY-MM-DD असेल तरच तो पलटी करून DD/MM/YYYY करू
             if (parts[0].length === 4) {
                 return `${parts[2]}/${parts[1]}/${parts[0]}`;
             }
         }
-        
-        // जर वरील लॉजिक चाललं नाही तर फॉलबॅक म्हणून जुनं लॉजिक
         const date = new Date(dateStr);
         if (isNaN(date.getTime())) return dateStr;
         const day = String(date.getDate()).padStart(2, '0');
@@ -93,12 +87,20 @@ const MyBookings = () => {
 
     const fetchBookings = () => {
         if (user) {
-            const uid = user.user_id || user.id || 1; 
+            // ✅ फिक्स: userId नीट मिळवण्यासाठी सर्व शक्यता तपासा
+            // '|| 1' काढून टाकले आहे जेणेकरून चुकीचा डेटा दिसणार नाही
+            const uid = user.id || user.user_id; 
+
+            if (!uid) {
+                console.error("User ID missing in localStorage!");
+                setLoading(false);
+                return;
+            }
+
             setLoading(true);
-            
             axios.get(`${API_BASE_URL}/api/my-bookings/${uid}`)
                 .then(res => {
-                    console.log("Bookings Data Received:", res.data); 
+                    console.log("Bookings fetched for user:", uid, res.data); 
                     setBookings(res.data);
                     setLoading(false);
                 })
@@ -215,5 +217,4 @@ const MyBookings = () => {
         </div>
     );
 };
-
 export default MyBookings;

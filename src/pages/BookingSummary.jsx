@@ -60,7 +60,24 @@ const BookingSummary = ({ selectedSeats = [], price = 0, onConfirm, from, to, bu
       alert(t('accept_terms_alert') || "कृपया नियम आणि अटी मान्य करा!");
       return;
     }
-    // सर्व प्रवाशांची नावे आणि वय भरले असल्याची खात्री करणे
+
+    // --- नवीन FEMALE LOGIC सुरुवात (Line 74 च्या आसपास) ---
+    // आपण निवडलेल्या सीट्सपैकी कोणत्या महिलांसाठी आहेत ते शोधूया
+    // (टीप: बसच्या डेटाबेसमधून 'reserved_for' माहिती आपण 'passengers' सोबत पडताळून पाहू शकतो)
+    
+    const maleOnFemaleSeat = passengers.some(p => {
+        // जर प्रवाशाचे लिंग 'M' (Male) असेल...
+        // आणि त्याने निवडलेली सीट 'L1', 'L2', '1A' इ. पैकी असेल जी महिलांसाठी राखीव आहे
+        const femaleReservedSeats = ['L1', 'L2', '1A', '1B', 'L12', '2A']; // तुझ्या SQL नुसार
+        return p.gender === 'M' && femaleReservedSeats.includes(p.seat);
+    });
+
+    if (maleOnFemaleSeat) {
+        alert("Sorry! Some of the seats you selected are reserved for women only. Please select a general seat.");
+        return;
+    }
+    // --- नवीन FEMALE LOGIC संपले ---
+
     const isIncomplete = passengers.some(p => p.name.trim() === "" || p.age === "");
     if (isIncomplete) {
       alert("कृपया सर्व प्रवाशांची माहिती पूर्ण भरा!");
@@ -77,7 +94,7 @@ const BookingSummary = ({ selectedSeats = [], price = 0, onConfirm, from, to, bu
     }
     
     // नेव्हिगेट करताना सर्व डेटा (पॅसेंजर्ससह) पाठवणे
-    const finalBookingDetails = {
+   const finalBookingDetails = {
       totalAmount: totalAmount, 
       busName: busName, 
       from: from, 
@@ -85,7 +102,7 @@ const BookingSummary = ({ selectedSeats = [], price = 0, onConfirm, from, to, bu
       selectedSeats: selectedSeats, 
       busId: busId,
       travelDate: travelDate || "2026-03-17", 
-      passengers: passengers, // <--- हा सर्वात महत्त्वाचा बदल आहे
+      passengers: passengers, // यामध्ये प्रत्येक प्रवाशाचे नाव, वय आणि लिंग (M/F) आहेच.
       formData: formData,
       pnr: "PNR" + Math.floor(100000 + Math.random() * 900000)
     };

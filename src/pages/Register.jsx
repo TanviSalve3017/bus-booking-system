@@ -30,25 +30,25 @@ const Register = () => {
         // २. ईमेल व्हॅलिडेशन
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(cleanEmail)) {
-            alert(t('invalid_email') || "कृपया वैध ईमेल आयडी टाका.");
+            alert(t('invalid_email') || "Please enter a valid email ID.");
             return;
         }
 
         // ३. मोबाईल नंबर व्हॅलिडेशन (१० अंकी)
         if (formData.mobile.length !== 10) {
-            alert(t('invalid_mobile') || "कृपया १० अंकी मोबाईल नंबर टाका.");
+            alert(t('invalid_mobile') || "Please enter a 10-digit mobile number.");
             return;
         }
 
         // ४. पासवर्ड स्ट्रेंथ व्हॅलिडेशन
         if (formData.password.length < 6) {
-            alert(t('weak_password') || "पासवर्ड किमान ६ अक्षरांचा असावा.");
+            alert(t('weak_password') || "The password must be at least 6 characters long.");
             return;
         }
 
         // ५. Confirm Password मॅच होणे गरजेचे आहे
         if (formData.password !== formData.confirmPassword) {
-            alert(t('password_mismatch') || "पासवर्ड मॅच होत नाहीत!");
+            alert(t('password_mismatch') || "The passwords don't match!");
             return;
         }
 
@@ -63,17 +63,17 @@ const Register = () => {
             });
             
             if (res.data.success) {
-                alert(t('register_success_alert') || "नोंदणी यशस्वी! आता लॉगिन करा.");
+                alert(t('register_success_alert') || "Registration successful! Login now.");
                 navigate("/login");
             }
         } catch (err) {
             console.error("Registration Error:", err);
             
             const serverMsg = err.response?.data?.message;
-            let errorMsg = t('registration_failed') || "नोंदणी अयशस्वी!";
+            let errorMsg = t('registration_failed') || "Registration failed!";
 
             if (serverMsg === "Email already exists") {
-                errorMsg = t('email_exists_alert') || "हा ईमेल आधीच नोंदणीकृत आहे!";
+                errorMsg = t('email_exists_alert') || "This email is already registered!";
             } else if (err.response?.data?.error) {
                 errorMsg = `Error: ${err.response.data.error}`;
             } else if (err.code === "ERR_NETWORK") {

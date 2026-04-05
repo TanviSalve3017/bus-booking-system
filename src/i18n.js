@@ -13,6 +13,7 @@ const resources = {
       "register": "Register",
       "logout": "Logout",
       "hi": "Hi",
+      "admin_dashboard": "Admin Dashboard", // <--- ही लाईन ॲड कर
 
       // Booking Summary & Fare
       "booking_summary": "Booking Summary",
@@ -83,6 +84,7 @@ const resources = {
       "register": "नोंदणी",
       "logout": "लॉगआऊट",
       "hi": "नमस्कार",
+      "admin_dashboard": "ॲडमिन डॅशबोर्ड", // <--- ही लाईन ॲड कर
 
       "booking_summary": "बुकिंगचा तपशील",
       "fare_summary": "भाड्याचा तपशील",
@@ -148,6 +150,8 @@ const resources = {
       "register": "पंजीकरण",
       "logout": "लॉगआउट",
       "hi": "नमस्ते",
+      "hi": "नमस्ते",
+"admin_dashboard": "एडमिन डैशबोर्ड", // <--- ही लाईन ॲड कर
 
       "booking_summary": "बुकिंग विवरण",
       "fare_summary": "किराया विवरण",

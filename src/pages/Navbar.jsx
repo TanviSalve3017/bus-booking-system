@@ -80,7 +80,15 @@ const Navbar = () => {
                 
                 {user ? (
                     <>
+                        {/* ✅ ५. ADMIN CHECK: जर रोल 'Admin' असेल तरच हे बटन दिसेल */}
+                        {user.role === 'Admin' && (
+                            <Link to="/admin" style={{ ...linkStyle, color: "#ffc107", fontWeight: "bold" }}>
+                                {t('admin_dashboard') || 'Admin Dashboard 🚀'}
+                            </Link>
+                        )}
+
                         <Link to="/my-bookings" style={linkStyle}>{t('my_bookings') || 'My Bookings'}</Link>
+                        
                         <span style={{ ...linkStyle, color: "#48bb78", fontWeight: "bold" }}>
                             {t('hi') || 'Hi'}, {user.name}
                         </span>

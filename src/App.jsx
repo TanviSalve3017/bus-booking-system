@@ -9,11 +9,24 @@ import Login from "./pages/Login";
 import Register from "./pages/Register"; 
 import MyBookings from "./pages/MyBookings"; 
 import PaymentSelection from "./pages/PaymentSelection"; 
+import AdminDashboard from "./pages/AdminDashboard";
 
+// १. सामान्य युजरसाठी प्रोटेक्शन (आधीचेच)
 const ProtectedRoute = ({ children }) => {
   const user = JSON.parse(localStorage.getItem("user"));
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
+// २. खास ॲडमिनसाठी नवीन लॉजिक (AdminRoute)
+const AdminRoute = ({ children }) => {
+  const user = JSON.parse(localStorage.getItem("user"));
+  
+  // जर युजर लॉगिन नसेल किंवा त्याचा रोल 'Admin' नसेल, तर त्याला होमवर पाठवा
+  if (!user || user.role !== "Admin") {
+    return <Navigate to="/" replace />;
   }
   return children;
 };
@@ -28,7 +41,16 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<Search />} />
           
-          {/* हा रस्ता आपण BookingSummary साठी वापरणार आहोत */}
+          {/* Admin Dashboard Route (फक्त ॲडमिनसाठी) */}
+          <Route 
+            path="/admin" 
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            } 
+          />
+
           <Route 
             path="/payment-selection" 
             element={
