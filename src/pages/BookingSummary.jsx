@@ -3,6 +3,7 @@ import "../styles/BookingSummary.css";
 import { useTranslation } from "react-i18next"; 
 import { useNavigate } from "react-router-dom"; 
 import PaymentSelection from "./PaymentSelection"; 
+const API_BASE_URL = "https://bus-booking-backend-zd3f.onrender.com";
 
 const BookingSummary = ({ selectedSeats = [], price = 0, onConfirm, from, to, busName, busId, travelDate }) => {
   const { t, i18n } = useTranslation(); 

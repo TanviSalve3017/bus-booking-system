@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+const API_BASE_URL = "https://bus-booking-backend-zd3f.onrender.com";
+
 const AdminDashboard = () => {
   const [buses, setBuses] = useState([]);
   const [stats, setStats] = useState({
